@@ -701,7 +701,7 @@ function Ra(a) {
   return a.startsWith("data:application/octet-stream;base64,");
 }
 var Sa;
-Sa = "canvas_advanced.wasm.html";
+Sa = "canvas_advanced.wasm";
 if (!Ra(Sa)) {
   var Ta = Sa;
   Sa = m.locateFile ? m.locateFile(Ta, pa) : pa + Ta;
@@ -3370,7 +3370,7 @@ $d();
 /* 2 */
 /***/ ((module) => {
 
-module.exports = /*#__PURE__*/JSON.parse('{"name":"@rive-app/canvas","version":"2.30.4","description":"Rive\'s canvas based web api.","main":"rive.html","homepage":"https://rive.app/","repository":{"type":"git","url":"https://github.com/rive-app/rive-wasm/tree/master/js"},"keywords":["rive","animation"],"author":"Rive","contributors":["Luigi Rosso <luigi@rive.app> (https://rive.app)","Maxwell Talbot <max@rive.app> (https://rive.app)","Arthur Vivian <arthur@rive.app> (https://rive.app)","Umberto Sonnino <umberto@rive.app> (https://rive.app)","Matthew Sullivan <matt.j.sullivan@gmail.com> (mailto:matt.j.sullivan@gmail.com)"],"license":"MIT","files":["rive.html","rive.js.map","rive.wasm.html","rive_fallback.wasm.html","rive.d.ts.html","rive_advanced.mjs.d.ts"],"typings":"rive.d.ts.html","dependencies":{},"browser":{"fs":false,"path":false}}');
+module.exports = /*#__PURE__*/JSON.parse('{"name":"@rive-app/canvas","version":"2.30.4","description":"Rive\'s canvas based web api.","main":"rive.js","homepage":"https://rive.app/","repository":{"type":"git","url":"https://github.com/rive-app/rive-wasm/tree/master/js"},"keywords":["rive","animation"],"author":"Rive","contributors":["Luigi Rosso <luigi@rive.app> (https://rive.app)","Maxwell Talbot <max@rive.app> (https://rive.app)","Arthur Vivian <arthur@rive.app> (https://rive.app)","Umberto Sonnino <umberto@rive.app> (https://rive.app)","Matthew Sullivan <matt.j.sullivan@gmail.com> (mailto:matt.j.sullivan@gmail.com)"],"license":"MIT","files":["rive.js","rive.js.map","rive.wasm","rive_fallback.wasm","rive.d.ts","rive_advanced.mjs.d.ts"],"typings":"rive.d.ts","dependencies":{},"browser":{"fs":false,"path":false}}');
 
 /***/ }),
 /* 3 */
@@ -4362,7 +4362,7 @@ var RuntimeLoader = /** @class */ (function () {
             // In case unpkg fails, or the wasm was not supported, we try to load the fallback module from jsdelivr.
             // This `rive_fallback.wasm` is compiled to support older architecture.
             // TODO: (Gordon): preemptively test browser support and load the correct wasm file. Then use jsdelvr only if unpkg fails.
-            var backupJsdelivrUrl = "https://cdn.jsdelivr.net/npm/".concat(package_json__WEBPACK_IMPORTED_MODULE_1__.name, "@").concat(package_json__WEBPACK_IMPORTED_MODULE_1__.version, "rive_fallback.wasm.html");
+            var backupJsdelivrUrl = "https://cdn.jsdelivr.net/npm/".concat(package_json__WEBPACK_IMPORTED_MODULE_1__.name, "@").concat(package_json__WEBPACK_IMPORTED_MODULE_1__.version, "/rive_fallback.wasm");
             if (RuntimeLoader.wasmURL.toLowerCase() !== backupJsdelivrUrl) {
                 console.warn("Failed to load WASM from ".concat(RuntimeLoader.wasmURL, " (").concat(errorDetails.message, "), trying jsdelivr as a backup"));
                 RuntimeLoader.setWasmUrl(backupJsdelivrUrl);
@@ -4422,7 +4422,7 @@ var RuntimeLoader = /** @class */ (function () {
     RuntimeLoader.callBackQueue = [];
     // Path to the Wasm file; default path works for testing only;
     // if embedded wasm is used then this is never used.
-    RuntimeLoader.wasmURL = "https://unpkg.com/".concat(package_json__WEBPACK_IMPORTED_MODULE_1__.name, "@").concat(package_json__WEBPACK_IMPORTED_MODULE_1__.version, "rive.wasm.html");
+    RuntimeLoader.wasmURL = "https://unpkg.com/".concat(package_json__WEBPACK_IMPORTED_MODULE_1__.name, "@").concat(package_json__WEBPACK_IMPORTED_MODULE_1__.version, "/rive.wasm");
     return RuntimeLoader;
 }());
 
