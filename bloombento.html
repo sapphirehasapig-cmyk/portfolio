@@ -1,0 +1,305 @@
+<!DOCTYPE html><!-- This site was created in Webflow. https://webflow.com --><!-- Last Published: Mon Oct 12 2026 16:23:08 GMT+0000 (Coordinated Universal Time) --><html data-wf-page="6aa1c79548eb3604f03c3b81" data-wf-site="69257c05a80a68c1427cd909" lang="en"><head><meta charset="utf-8"/><title>BloomBento — Case Study</title><meta content="BloomBento: a smart herb box with a plant that talks. I shaped the concept with the founder, then designed and built the app from 0 to 1 with AI (Figma, Claude Code, Expo)." name="description"/><meta content="BloomBento — Case Study" property="og:title"/><meta content="https://hellozhixuan.com/og/og-bloombento.jpg" property="og:image"/><meta content="1200" property="og:image:width"/><meta content="630" property="og:image:height"/><meta content="https://hellozhixuan.com/og/og-bloombento.jpg" name="twitter:image"/><meta content="BloomBento: a smart herb box with a plant that talks. I shaped the concept with the founder, then designed and built the app from 0 to 1 with AI (Figma, Claude Code, Expo)." property="og:description"/><meta content="BloomBento — Case Study" name="twitter:title"/><meta content="BloomBento: a smart herb box with a plant that talks. I shaped the concept with the founder, then designed and built the app from 0 to 1 with AI (Figma, Claude Code, Expo)." name="twitter:description"/><meta property="og:type" content="website"/><meta content="summary_large_image" name="twitter:card"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="Webflow" name="generator"/><link href="cdn.prod.website-files.com/69257c05a80a68c1427cd909/css/zhixuans-portfolio-3b28a4.webflow.shared.a8ef4180f.css" rel="stylesheet" type="text/css"/><script type="text/javascript">!function(o,c){var n=c.documentElement,t=" w-mod-";n.className+=t+"js",("ontouchstart"in o||o.DocumentTouch&&c instanceof DocumentTouch)&&(n.className+=t+"touch")}(window,document);</script><link href="cdn.prod.website-files.com/69257c05a80a68c1427cd909/69257c07a80a68c1427cda99_landon-favicon.png" rel="shortcut icon" type="image/x-icon"/><link href="cdn.prod.website-files.com/69257c05a80a68c1427cd909/69257c07a80a68c1427cda9a_landon-webclip.png" rel="apple-touch-icon"/><script>(function(w,i,g){w[g]=w[g]||[];if(typeof w[g].push=='function')w[g].push.apply(w[g],Array.isArray(i)?i:[i]);})(window,['G-R41WEZ2715'],'google_tags_first_party');</script><script type="text/javascript">window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('set', 'developer_id.dZGVlNj', true);gtag('set', 'developer_id.dYWYxNW', true);gtag('js', new Date());gtag('config', 'G-R41WEZ2715');</script><!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-CCHLPGF8XZ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  // Mark your own visits: open the site once with ?me=1 on each of your devices (?me=0 to undo)
+  var zxCfg = {};
+  try {
+    if (/[?&]me=1\b/.test(location.search)) localStorage.setItem('zx_internal', '1');
+    if (/[?&]me=0\b/.test(location.search)) localStorage.removeItem('zx_internal');
+    if (localStorage.getItem('zx_internal') === '1') zxCfg.traffic_type = 'internal';
+  } catch (e) {}
+  gtag('config', 'G-CCHLPGF8XZ', zxCfg);
+</script>
+
+<!-- Playfair Display (headings) -->
+
+
+<link href="fonts.googleapis.com/css231b4.css?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&amp;display=swap" rel="stylesheet"><script src="cdn.prod.website-files.com/69257c05a80a68c1427cd909/6544eda5f000985a163a8687/699c0fef06467f08016624de/finsweetcomponentsconfig-1.0.4.js" type="module" async="" siteId="69257c05a80a68c1427cd909" finsweet="components"></script></head><body>
+<style>
+/* BloomBento case page — bb- prefix */
+.bb-band{background:#111;border-radius:18px;padding:48px 32px;display:flex;justify-content:center;align-items:flex-end;gap:36px;flex-wrap:wrap}
+.bb-screen{position:relative;width:240px;flex:none}
+.bb-screen img,.bb-screen video{display:block;width:100%;height:auto;border-radius:22px;border:3px solid #2a2a2a;background:#111;position:relative;z-index:1}
+.bb-screen::after{content:"";position:absolute;left:8px;top:8px;right:-8px;bottom:-8px;border-radius:22px;background:#FF3D8A;z-index:0}
+.bb-screen.bb-lime::after{background:#C6FF3D}
+.bb-screen-label{margin-top:18px;font:600 11px/1.4 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:#9a9a9a;text-align:center}
+.bb-screen-label b{color:#C6FF3D;font-weight:600}
+.bb-band.bb-sm .bb-screen{width:220px}
+.bb-band-cap{flex-basis:100%;margin:4px 0 0;text-align:center;font:500 12px/1.5 "IBM Plex Mono",ui-monospace,monospace;color:#8a8a8a}
+.bb-hero-band{align-items:flex-start}
+.bb-hero-band .bb-screen{width:260px}
+.bb-facts{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:40px auto 0;max-width:880px;border-top:1px solid #eceef1;border-bottom:1px solid #eceef1}
+.bb-fact{padding:18px 16px 18px 0}
+.bb-fact dt{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#7a7a80;font-weight:600;margin-bottom:6px}
+.bb-fact dd{margin:0;font-size:14px;line-height:1.5;color:#1a1a18}
+.bb-callout{border-left:3px solid #FF3D8A;background:#faf7f9;border-radius:0 10px 10px 0;padding:16px 20px;margin:24px 0;font-size:17px;line-height:1.6}
+.bb-goal{display:inline-block;background:#111;color:#C6FF3D;font:600 13px/1 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.06em;padding:10px 14px;border-radius:4px;margin:4px 0 8px}
+.bb-decision{display:grid;grid-template-columns:1fr 240px;gap:48px;align-items:center;margin:56px 0 0}
+.bb-decision.bb-noimg{grid-template-columns:1fr}
+.bb-num{font:600 12px/1 "IBM Plex Mono",ui-monospace,monospace;color:#FF3D8A;letter-spacing:.1em;margin-bottom:10px}
+.bb-h3{font-size:20px;font-weight:700;color:#1a1a18;margin:0 0 12px;line-height:1.3}
+.bb-note{display:inline-block;font:500 11px/1.4 "IBM Plex Mono",ui-monospace,monospace;color:#7a7a80;border:1px dashed #c7c9d1;border-radius:4px;padding:5px 9px;margin-top:4px}
+.bb-voices{background:#111;border-radius:16px;padding:28px;margin:28px 0 8px}
+.bb-voices-head{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font:600 12px/1.4 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.08em;color:#9a9a9a;margin-bottom:22px}
+.bb-voices-head b{color:#FF3D8A;font-weight:600}
+.bb-voices-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.bb-voice{border:1px solid #2c2c2c;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.bb-voice img{width:64px;height:64px;image-rendering:pixelated}
+.bb-voice-name{font:600 12px/1 "IBM Plex Mono",ui-monospace,monospace;color:#C6FF3D;letter-spacing:.08em;text-transform:uppercase}
+.bb-voice-trait{font-size:12px;color:#8a8a8a}
+.bb-voice-line{font-size:16px;line-height:1.4;color:#fff;font-weight:500}
+.bb-sheet{background:#111;border-radius:16px;padding:32px;margin:28px 0 8px;text-align:center}
+.bb-sheet img{width:100%;max-width:560px;image-rendering:pixelated}
+.bb-steps{list-style:none;padding:0 !important;margin:28px 0 0;counter-reset:s;display:grid;gap:14px}
+.bb-step{counter-increment:s;display:grid;grid-template-columns:44px 1fr;gap:14px;border:1px solid #eceef1;border-radius:12px;padding:18px 20px}
+.bb-step::before{content:counter(s,decimal-leading-zero);font:600 13px/1 "IBM Plex Mono",ui-monospace,monospace;color:#111;background:#C6FF3D;border-radius:4px;height:28px;display:flex;align-items:center;justify-content:center}
+.bb-step h4{margin:2px 0 6px;font-size:16px;font-weight:700;color:#1a1a18}
+.bb-step p{margin:0;font-size:15px;line-height:1.6;color:#3a3a40}
+.bb-changes{margin:20px 0 0;padding-left:20px}
+.bb-changes li{font-size:16px;line-height:1.6;margin-bottom:10px;color:#2a2a30}
+@media (max-width:767px){
+  .bb-facts{grid-template-columns:1fr 1fr}
+  .bb-decision{grid-template-columns:1fr;gap:24px}
+  .bb-decision .bb-screen{margin:0 auto}
+  .bb-voices-grid{grid-template-columns:1fr 1fr}
+  .bb-band{padding:32px 16px;gap:28px}
+  .bb-screen,.bb-band.bb-sm .bb-screen{width:200px}
+  .bb-hero-band .bb-screen:nth-child(2){display:none}
+}
+@media (max-width:479px){
+  .bb-voices-grid{grid-template-columns:1fr}
+  .bb-voices{padding:20px}
+  .bb-facts{grid-template-columns:1fr}
+  .bb-fact{padding:14px 0}
+}
+</style>
+<nav class="jst-nav-1 nav-white"><div class="jst-nav-left"><a href="./#mywork" aria-label="Back to portfolio home" class="jst-nav-home">← Back</a><div class="jst-crumb">Work <span class="jst-crumb-current">/ BloomBento</span></div></div><div class="jst-nav-right-1"><a target="_blank" rel="noopener" href="https://www.linkedin.com/in/zhixuanliu-ashly/" class="jst-nav-link">LinkedIn ⟶</a><a href="mailto:sapphirehasapig@gmail.com" class="jst-btn-contact">Get in touch ⟶</a></div></nav>
+<div class="main-wrapper"><div class="jst-page">
+<header class="jst-hero">
+  <div class="jst-eyebrow"><span class="jst-eyebrow-dash jst-dash-pink"></span><span class="jst-eyebrow-label">Startup · App design & build with AI</span></div>
+  <h1 class="jst-h1">BloomBento</h1>
+  <p class="jst-hero-sub">A smart herb box with a plant that talks. I shaped the concept with the founder, then designed and built the app from 0 to 1 with AI.</p>
+  <div class="jst-meta-row"><span class="jst-tag">Built with Claude Code</span><span class="jst-tag">Figma</span><span class="jst-tag">Expo</span><span class="jst-tag">Aug 2026 – now</span></div>
+</header>
+<div class="jst-hero-image" style="display:block;max-width:960px">
+  <div class="bb-band bb-hero-band">
+    <div class="bb-screen"><video src="assets/bloombento/bloombento-refill-taps.mp4" poster="assets/bloombento/refill-poster.jpg" muted loop playsinline preload="metadata" class="bb-vid" title="Water low to refill"></video></div>
+    <div class="bb-screen bb-lime"><video src="assets/bloombento/bloombento-sensor-data-taps.mp4" poster="assets/bloombento/sensor-poster.jpg" muted loop playsinline preload="metadata" class="bb-vid" title="Sensor data"></video></div>
+    <p class="bb-band-cap">The app, running on my iPhone in Expo Go · sample data</p>
+  </div>
+  <dl class="bb-facts">
+    <div class="bb-fact"><dt>Role</dt><dd>Co-founder<br>Concept, product design &amp; app development</dd></div>
+    <div class="bb-fact"><dt>Team</dt><dd>Me: concept + the whole digital product<br>The founder: concept + hardware</dd></div>
+    <div class="bb-fact"><dt>Time</dt><dd>Aug 2026 – now</dd></div>
+    <div class="bb-fact"><dt>Status</dt><dd>App V2 running on iPhone<br>V3 designed<br>Launch target: late Nov 2026</dd></div>
+  </dl>
+</div>
+</div>
+
+<main class="jst-main">
+
+<section id="background" class="jst-section jst-section-first">
+  <div class="jst-eyebrow"><span class="jst-eyebrow-dash jst-dash-orange"></span><span class="jst-eyebrow-label">01 · Background</span></div>
+  <h2 class="jst-h2">We started from a product that already worked</h2>
+  <p class="jst-p _1">Veggi, a smart plant box, became a hit in China. What Veggi does best: its plants talk. Each plant has lines for different moments, called flavor text. It makes a plant feel like someone, not something.</p>
+  <p class="jst-p _1">We wanted to bring that feeling to Europe.</p>
+  <div class="bb-callout"><strong>My role:</strong> The founder had the first idea. We shaped the concept together. Then I designed and built the whole digital product, from 0 to 1.</div>
+</section>
+
+<section id="decisions" class="jst-section">
+  <div class="jst-eyebrow"><span class="jst-eyebrow-dash jst-dash-pink"></span><span class="jst-eyebrow-label">02 · Design decisions</span></div>
+  <h2 class="jst-h2">Every decision has one goal</h2>
+  <div class="bb-goal">MAKE THE PLANT FEEL ALIVE</div>
+
+  <div class="bb-decision bb-noimg">
+    <div>
+      <div class="bb-num">01 + 02</div>
+      <h3 class="bb-h3">A flavor text library, and each plant is a character</h3>
+      <p class="jst-p _1">The plant speaks in its own words. Thirsty, growing, ready to harvest: each moment has its own lines. 240 lines in total.</p>
+      <p class="jst-p _1">4 plants, 4 personalities. Same moment, different words. You can tell who's talking.</p>
+      <span class="bb-note">Designed in V3 · coming to the app in the next update</span>
+    </div>
+  </div>
+  <div class="bb-voices">
+    <div class="bb-voices-head"><span>SAME MOMENT: <b>WATER IS LOW</b></span><span>WATER 14% · LOW</span></div>
+    <div class="bb-voices-grid">
+      <div class="bb-voice"><img src="assets/bloombento/sp-basil-thirsty.png" alt="Basil, thirsty"><div class="bb-voice-name">Basil</div><div class="bb-voice-trait">A drama queen</div><div class="bb-voice-line">“Day three of the drought. Send help.”</div></div>
+      <div class="bb-voice"><img src="assets/bloombento/sp-mint-thirsty.png" alt="Mint, thirsty"><div class="bb-voice-name">Mint</div><div class="bb-voice-trait">Talks too much</div><div class="bb-voice-line">“Thirsty! Also, have you tried mojitos?”</div></div>
+      <div class="bb-voice"><img src="assets/bloombento/sp-chives-thirsty.png" alt="Chives, thirsty"><div class="bb-voice-name">Chives</div><div class="bb-voice-trait">Says very little</div><div class="bb-voice-line">“Dry. Been dry. Still dry.”</div></div>
+      <div class="bb-voice"><img src="assets/bloombento/sp-lemonbalm-thirsty.png" alt="Lemon Balm, thirsty"><div class="bb-voice-name">Lemon Balm</div><div class="bb-voice-trait">Calm and polite</div><div class="bb-voice-line">“A little drink would be lovely.”</div></div>
+    </div>
+  </div>
+  <figcaption class="jst-figcaption">Real lines from the flavor text library in Figma. The plant talks in a big line; the real number sits under it.</figcaption>
+
+  <div class="bb-decision">
+    <div>
+      <div class="bb-num">03</div>
+      <h3 class="bb-h3">“9 days together”, not “Day 9”</h3>
+      <p class="jst-p _1">The home screen counts time like a relationship, not like a timer.</p>
+      <span class="bb-note">V3 design</span>
+    </div>
+    <div class="bb-screen bb-lime"><img src="assets/bloombento/v3-home.png" alt="Home screen showing '9 days together'"></div>
+  </div>
+
+  <div class="bb-decision">
+    <div>
+      <div class="bb-num">04</div>
+      <h3 class="bb-h3">A diary of growing together</h3>
+      <p class="jst-p _1">If the plant feels alive, the time you spend together matters. So the diary does two things:</p>
+      <ul class="bb-changes"><li>First, it records how you and your plant grow together.</li><li>Second, it keeps the plant's data, day by day.</li></ul>
+      <span class="bb-note">V3 design</span>
+    </div>
+    <div class="bb-screen"><img src="assets/bloombento/v3-diary.png" alt="Diary day view with the plant's lines and the user's notes"></div>
+  </div>
+</section>
+
+<section id="solves" class="jst-section">
+  <div class="jst-eyebrow"><span class="jst-eyebrow-dash jst-dash-blue"></span><span class="jst-eyebrow-label">03 · What it solves</span></div>
+  <h2 class="jst-h2">Growing plants can be boring</h2>
+  <p class="jst-p _1">You water, you wait, nothing happens.</p>
+  <p class="jst-p _1">BloomBento makes it feel alive. Your plant reacts, talks back, and grows with you.</p>
+</section>
+
+
+
+<section id="build" class="jst-section">
+  <div class="jst-eyebrow"><span class="jst-eyebrow-dash jst-dash-teal"></span><span class="jst-eyebrow-label">04 · How I built it with AI</span></div>
+  <h2 class="jst-h2">From an idea to a running app</h2>
+  <ol class="bb-steps">
+    <li class="bb-step"><div><h4>Plan the core</h4><p>With the founder, I first agreed on the core features. Then I sketched a wireframe.</p></div></li>
+    <li class="bb-step"><div><h4>Create the look</h4><p>I collected styles I liked and chose pixel art: flat, playful, a bit Y2K. AI generated the plant images in that style. I chose pink and yellow as the main colors.</p></div></li>
+    <li class="bb-step"><div><h4>Grow the character</h4><p>From one plant image, I made every state: seed, growing, healthy, thirsty, ready to harvest. For all 4 plants. This became the brand.</p></div></li>
+    <li class="bb-step"><div><h4>Bring it together in Figma</h4><p>I gave the whole brand to Claude, mixed it with my wireframe, and finished the design in Figma.</p></div></li>
+    <li class="bb-step"><div><h4>Build one page at a time</h4><p>Claude Code writes one page. I run it on my iPhone with Expo Go and check every small change. If it matches what I had in mind, we move on. If not, I tell it what to fix. Then repeat.</p></div></li>
+  </ol>
+  <div class="bb-sheet"><img src="assets/bloombento/sprites.png" alt="Pixel art sheet: 4 plants, each in every state"></div>
+  <figcaption class="jst-figcaption">The character sheet: 4 plants, every state, in pixel art.</figcaption>
+
+  <h3 class="bb-h3" style="margin-top:48px">What changed along the way</h3>
+  <ul class="bb-changes">
+    <li>My design showed “~12 g ready to harvest”. But weighing the harvest turned out to be hard for the hardware. The founder and I decided to remove it in V3. Many decisions changed like this, once we knew what the technology could really do.</li>
+    <li>On my phone, the keyboard covered the diary note box. We fixed it so the page moves up when you type.</li>
+  </ul>
+</section>
+
+<section id="next" class="jst-section">
+  <div class="jst-eyebrow"><span class="jst-eyebrow-dash jst-dash-orange"></span><span class="jst-eyebrow-label">05 · What's next</span></div>
+  <h2 class="jst-h2">V3, then launch</h2>
+  <p class="jst-p _1">V2 is running. V3 brings the plant voices, a new home screen and a new diary. Launch on Google Play: late November 2026.</p>
+</section>
+</main>
+<footer class="jst-endnote"><a href="./#mywork" class="jst-cta">← Back to Work</a></footer>
+</div>
+<script>
+/* Play the case videos only while on screen, one at a time */
+(function(){
+  var vids=[].slice.call(document.querySelectorAll('.bb-vid'));
+  if(!('IntersectionObserver' in window)){vids.forEach(function(v){v.setAttribute('controls','')});return;}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){
+    var v=e.target; if(e.isIntersecting&&e.intersectionRatio>.6){var p=v.play(); if(p&&p.catch)p.catch(function(){});} else v.pause();
+  });},{threshold:[0,.6]});
+  vids.forEach(function(v){io.observe(v)});
+})();
+</script>
+<script src="d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c871bc.js?site=69257c05a80a68c1427cd909" type="text/javascript"></script><script src="cdn.prod.website-files.com/69257c05a80a68c1427cd909/js/webflow.schunk.36b8fb49256177c8.js" type="text/javascript"></script><script src="cdn.prod.website-files.com/69257c05a80a68c1427cd909/js/webflow.schunk.2d20be6fc1efad8a.js" type="text/javascript"></script><script src="cdn.prod.website-files.com/69257c05a80a68c1427cd909/js/webflow.schunk.ca01814c50eced9a.js" type="text/javascript"></script><script src="cdn.prod.website-files.com/69257c05a80a68c1427cd909/js/webflow.3b509d83.f281d0a77c623f2f.js" type="text/javascript"></script><!-- GA4 custom events for portfolio (added 2026-09) -->
+<script>
+(function () {
+  if (typeof window.gtag !== 'function') return;
+
+  // Case study pages: URL slug -> readable name used in reports
+  var CASE = {
+    'parkflux': 'ParkFlux',
+    'website-design': 'Real Client Websites',
+    'design-for-less-stress': 'Design for Less Stress',
+    'job-search-tracker': 'Job Search Tracker',
+    'bloombento': 'BloomBento'
+  };
+  function clean(p) { return (p || '/').replace(/\.html$/, '').replace(/\/+$/, '') || '/'; }
+  function projectOf(path) {
+    var parts = clean(path).split('/');
+    if (CASE[parts[1]]) return CASE[parts[1]];
+    if (parts[1] === 'work' && parts[2]) return 'work/' + parts[2];
+    return null;
+  }
+  function send(name, params) { try { gtag('event', name, params || {}); } catch (e) {} }
+  function textOf(el) {
+    return (el.innerText || el.textContent || el.getAttribute('aria-label') || '')
+      .replace(/\s+/g, ' ').trim().slice(0, 100);
+  }
+
+  var here = clean(location.pathname);
+  var hereProject = projectOf(here);
+
+  // 1) Clicks: contact, CV, project cards, navigation, external sites
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+    var text = textOf(a);
+    if (/^mailto:/i.test(href)) return send('contact_click', { contact_method: 'email', link_text: text });
+    if (/^tel:/i.test(href)) return send('contact_click', { contact_method: 'phone', link_text: text });
+    var url;
+    try { url = new URL(a.href, location.href); } catch (err) { return; }
+    if (/(^|\.)linkedin\.com$/i.test(url.hostname)) return send('contact_click', { contact_method: 'linkedin', link_url: url.href, link_text: text });
+    if (/\.pdf$/i.test(url.pathname) || /\b(cv|resume)\b/i.test(text)) return send('cv_download', { link_url: url.href, link_text: text });
+    if (url.hostname !== location.hostname) {
+      return send('external_click', { project_name: hereProject || 'none', link_url: url.href, link_text: text });
+    }
+    var target = clean(url.pathname);
+    if (target === here) return; // same-page anchor, ignore
+    var proj = projectOf(target);
+    if (proj) return send('project_click', { project_name: proj, link_text: text });
+    send('nav_click', { link_url: target, link_text: text });
+  }, true);
+
+  // 2) Someone copies an email address instead of clicking it
+  document.addEventListener('copy', function () {
+    var s = String(window.getSelection ? window.getSelection() : '');
+    if (s.indexOf('@') > -1) send('contact_click', { contact_method: 'email_copy' });
+  });
+
+  // 3) Video plays started by the visitor (skips autoplay background loops)
+  document.addEventListener('play', function (e) {
+    var v = e.target;
+    if (!v || v.tagName !== 'VIDEO' || v.autoplay || v.__zxPlayed) return;
+    v.__zxPlayed = 1;
+    var src = (v.currentSrc || '').split('/').pop().split('?')[0];
+    send('video_play', { project_name: hereProject || 'none', video_title: (v.getAttribute('title') || src).slice(0, 100) });
+  }, true);
+
+  // 4) Case study pages only: scroll depth + "really read it"
+  if (!hereProject) return;
+  var marks = [25, 50, 75, 100], hit = {}, waiting = false;
+  function checkScroll() {
+    waiting = false;
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    if (max <= 0) return;
+    var pct = (window.scrollY || window.pageYOffset) / max * 100;
+    for (var i = 0; i < marks.length; i++) {
+      var m = marks[i];
+      if (!hit[m] && pct >= (m === 100 ? 97 : m)) {
+        hit[m] = 1;
+        send('case_study_scroll', { project_name: hereProject, scroll_depth: m });
+      }
+    }
+  }
+  window.addEventListener('scroll', function () {
+    if (!waiting) { waiting = true; setTimeout(checkScroll, 250); }
+  }, { passive: true });
+
+  // "Read": 60 seconds with the tab visible AND scrolled past 25%
+  var seen = 0, readSent = false;
+  setInterval(function () {
+    if (readSent || document.visibilityState !== 'visible') return;
+    seen += 5;
+    if (seen >= 60 && hit[25]) {
+      readSent = true;
+      send('case_study_read', { project_name: hereProject });
+    }
+  }, 5000);
+})();
+</script></body></html>
