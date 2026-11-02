@@ -311,5 +311,6 @@ function on(a){var p=c(a);cs.forEach(function(e){if(e===a){e.classList.add('is-a
 var q=c(e),dx=q.x-p.x,dy=q.y-p.y,d=Math.max(1,Math.hypot(dx,dy)),f=Math.max(30,110-d*0.12);
 e.classList.remove('is-active');e.classList.add('is-pushed');e.style.setProperty('--dx',(dx/d*f).toFixed(1)+'px');e.style.setProperty('--dy',(dy/d*f*0.4).toFixed(1)+'px');});}
 function off(){cs.forEach(function(e){e.classList.remove('is-active','is-pushed');e.style.removeProperty('--dx');e.style.removeProperty('--dy');});}
-cs.forEach(function(e){e.addEventListener('mouseenter',function(){on(e)});e.addEventListener('focus',function(){on(e)});e.addEventListener('blur',off);});
+var t;function later(){clearTimeout(t);t=setTimeout(off,60);}
+cs.forEach(function(e){e.addEventListener('mouseenter',function(){clearTimeout(t);on(e)});e.addEventListener('mouseleave',later);e.addEventListener('focus',function(){clearTimeout(t);on(e)});e.addEventListener('blur',later);});
 st.addEventListener('mouseleave',off);})();</script></body></html>
