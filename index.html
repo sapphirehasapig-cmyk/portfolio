@@ -383,7 +383,7 @@ cs.forEach(function(e){e.addEventListener('mouseenter',function(){clearTimeout(t
 st.addEventListener('mouseleave',off);})();</script><script id="ty-js">(function(){var L=document.querySelector('.ty-list');if(!L)return;var rows=[].slice.call(L.querySelectorAll('.ty-row'));
 var line=L.querySelector('.ty-line'),prog=L.querySelector('.ty-prog'),num=L.querySelector('.ty-stick-num');
 var rm=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-if(location.search.indexOf('tysticky')>-1)L.classList.add('ty-sticky');
+L.classList.add('ty-sticky');
 document.documentElement.classList.add('js-ty');
 if('IntersectionObserver' in window&&!rm){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{rootMargin:'0px 0px -12% 0px'});rows.forEach(function(r){io.observe(r)});}else rows.forEach(function(r){r.classList.add('in')});
 function dotY(r){var d=r.querySelector('.ty-dot');return d.getBoundingClientRect().top-L.getBoundingClientRect().top+6;}
