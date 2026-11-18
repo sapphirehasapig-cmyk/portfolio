@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ashly's Room</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    /* same cream as the edges of room.jpg (very slightly warmer at the bottom) */
+    background: #F2E6D6 linear-gradient(#F2E6D6, #F2E5D2) fixed;
+  }
+  /* The stage keeps the image's aspect ratio and fits the window without cropping.
+     The background image and the 3D canvas share this exact box, so they stay aligned on resize. */
+  #stage {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(100vw, calc(100vh * 2752 / 1536));
+    height: min(100vh, calc(100vw * 1536 / 2752));
+  }
+  #stage img, #stage canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  #stage img { user-select: none; -webkit-user-drag: none; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<div id="stage">
+  <img src="room.jpg" alt="An isometric cozy room" draggable="false">
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+/* =====================================================================
+   SCENE_CONFIG: every position, size and rotation lives here.
+
+   World units = pixels of room.jpg (2752 x 1536).
+   Origin = the back floor corner, where the two walls meet.
+     +x runs along the RIGHT wall toward the front-right.
+     +z runs along the LEFT wall toward the front-left.
+     +y is up.
+
+   So for any point:  x = distance from the LEFT wall,  z = distance from the RIGHT wall.
+   The floor is a square from (0,0) to (1207,1207).
+
+   Each model:
+     at         - [x, z] world position of the CENTER OF THE OBJECT'S BASE.
+     surface    - which surface it stands on (its height and footprint are in `surfaces`).
+     heightFrac - on-screen height of the object as a fraction of the image height.
+     faceDeg    - which way the object's front faces (world yaw):
+                    0  = straight out of the right wall (+z)
+                    90 = straight out of the left wall (+x)
+                    45 = straight at the viewer
+     modelYawDeg - extra turn to fix a model whose "front" is not +z in its file.
+     shadow     - size multiplier for its soft contact shadow.
+   ===================================================================== */
+const SCENE_CONFIG = {
+  image: { src: 'room.jpg', width: 2752, height: 1536 },
+
+  camera: {
+    yawDeg: 45,          // looking straight into the back corner
+    elevationDeg: 27.4,  // how far the camera looks down
+    originPx: [1404, 660], // where the back floor corner sits in room.jpg
+    zoom: 1,             // 1 = one world unit per image pixel
+  },
+
+  // Room box, used only by the ?debug outline.
+  room: { size: 1207, wallHeight: 627 },
+
+  // Surfaces objects stand on, measured from the illustration.
+  //   y = height of the top, x/z = footprint [min, max] (shown with ?debug).
+  surfaces: {
+    ground: { y: -73 },                                    // outside, below the floor slab
+    floor:  { y: 0,   x: [0, 1207],  z: [0, 1207] },
+    rug:    { y: 2,   x: [535, 913], z: [127, 505] },     // round rug, center (724, 316), radius ~189
+    desk:   { y: 190, x: [0, 230],   z: [656, 1066] },    // against the left wall, under the window
+    shelf:  { y: 400, x: [0, 90],    z: [290, 600] },     // wall shelf on the left wall
+    bench:  { y: 115, x: [555, 940], z: [15, 125] },      // low bench along the right wall
+  },
+
+  lights: {
+    hemiSky: 0xfff3e2, hemiGround: 0xe9c7a6, hemiIntensity: 1.4,
+    keyColor: 0xfff0dc, keyIntensity: 1.6, keyPosition: [-200, 1400, 1400],
+    environmentIntensity: 0.45,
+    exposure: 1.0,
+  },
+
+  materials: { roughnessMin: 0.85, metalness: 0 },
+
+  contactShadow: { color: 0x6e4a30, opacity: 0.4, padding: 1.35 },
+
+  models: [
+    { name: 'ashly',       file: 'models/ashly.glb',       surface: 'floor',  at: [1030, 1115], heightFrac: 0.48,  faceDeg: 45, modelYawDeg: 0, shadow: 1 },
+    { name: 'websites',    file: 'models/websites.glb',    surface: 'desk',   at: [25, 1030],   heightFrac: 0.112, faceDeg: 90, modelYawDeg: 0, shadow: 1 },
+    { name: 'jobhub',      file: 'models/jobhub.glb',      surface: 'desk',   at: [110, 880],   heightFrac: 0.182, faceDeg: 90, modelYawDeg: 0, shadow: 1 },
+    { name: 'bloombento',  file: 'models/bloombento.glb',  surface: 'desk',   at: [165, 720],   heightFrac: 0.182, faceDeg: 90, modelYawDeg: 0, shadow: 1 },
+    { name: 'less-stress', file: 'models/less-stress.glb', surface: 'shelf',  at: [45, 430],    heightFrac: 0.055, faceDeg: 90, modelYawDeg: 0, shadow: 1 },
+    { name: 'suitcase',    file: 'models/suitcase.glb',    surface: 'floor',  at: [145, 58],    heightFrac: 0.11,faceDeg: 45, modelYawDeg: 0, shadow: 1 },
+    { name: 'ski',         file: 'models/ski.glb',         surface: 'floor',  at: [280, 62],    heightFrac: 0.163, faceDeg: 45, modelYawDeg: 0, shadow: 1 },
+    { name: 'keyboard',    file: 'models/keyboard.glb',    surface: 'bench',  at: [760, 70],    heightFrac: 0.122, faceDeg: 0, modelYawDeg: 0, shadow: 1 },
+    { name: 'easel',       file: 'models/easel.glb',       surface: 'rug',    at: [830, 430],   heightFrac: 0.13,  faceDeg: 45, modelYawDeg: 0, shadow: 1 },
+    { name: 'parkflux',    file: 'models/parkflux.glb',    surface: 'ground', at: [60, 1466],   heightFrac: 0.11,  faceDeg: 45, modelYawDeg: 0, shadow: 1 },
+  ],
+};
+
+/* ---------- renderer, scene, camera ---------- */
+const DEBUG = new URLSearchParams(location.search).has('debug');
+const stage = document.getElementById('stage');
+const IMG_W = SCENE_CONFIG.image.width;
+const IMG_H = SCENE_CONFIG.image.height;
+const DEG = Math.PI / 180;
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setClearColor(0x000000, 0);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.toneMappingExposure = SCENE_CONFIG.lights.exposure;
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+
+// Orthographic camera whose frustum is exactly the image, in image pixels.
+// The back floor corner (world origin) lands on camera.originPx.
+const camera = (() => {
+  const c = SCENE_CONFIG.camera;
+  const [u0, v0] = c.originPx;
+  const cam = new THREE.OrthographicCamera(-u0, IMG_W - u0, v0, v0 - IMG_H, 1, 20000);
+  const yaw = c.yawDeg * DEG, el = c.elevationDeg * DEG, dist = 8000;
+  cam.position.set(Math.sin(yaw) * Math.cos(el) * dist, Math.sin(el) * dist, Math.cos(yaw) * Math.cos(el) * dist);
+  cam.lookAt(0, 0, 0);
+  cam.zoom = c.zoom;
+  cam.updateProjectionMatrix();
+  cam.updateMatrixWorld();
+  return cam;
+})();
+
+/* ---------- lights: soft and even, matte look ---------- */
+{
+  const L = SCENE_CONFIG.lights;
+  scene.add(new THREE.HemisphereLight(L.hemiSky, L.hemiGround, L.hemiIntensity));
+  const key = new THREE.DirectionalLight(L.keyColor, L.keyIntensity);
+  key.position.set(...L.keyPosition);
+  scene.add(key);
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  scene.environmentIntensity = L.environmentIntensity;
+}
+
+/* ---------- helpers ---------- */
+
+// Exact on-screen height (in image pixels) of an object, from its vertices.
+function screenHeight(object) {
+  object.updateMatrixWorld(true);
+  const view = camera.matrixWorldInverse;
+  const v = new THREE.Vector3();
+  let min = Infinity, max = -Infinity;
+  object.traverse((m) => {
+    if (!m.isMesh) return;
+    const pos = m.geometry.attributes.position;
+    const toView = new THREE.Matrix4().multiplyMatrices(view, m.matrixWorld);
+    for (let i = 0; i < pos.count; i++) {
+      v.fromBufferAttribute(pos, i).applyMatrix4(toView);
+      if (v.y < min) min = v.y;
+      if (v.y > max) max = v.y;
+    }
+  });
+  return max - min;
+}
+
+// Exact world bounding box from vertices (Box3.setFromObject can be loose).
+function tightBox(object) {
+  object.updateMatrixWorld(true);
+  const box = new THREE.Box3();
+  object.traverse((m) => { if (m.isMesh) box.expandByObject(m, true); });
+  return box;
+}
+
+function makeShadowTexture() {
+  const size = 256;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.45, 'rgba(255,255,255,0.55)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+const shadowTexture = makeShadowTexture();
+
+function addContactShadow(object, y, sizeMul) {
+  const S = SCENE_CONFIG.contactShadow;
+  // Footprint in the object's own turned frame, so the shadow lines up with it.
+  const yaw = object.rotation.y;
+  const inv = new THREE.Matrix4().makeRotationY(-yaw);
+  const local = new THREE.Box3();
+  const v = new THREE.Vector3();
+  object.updateMatrixWorld(true);
+  object.traverse((m) => {
+    if (!m.isMesh) return;
+    const pos = m.geometry.attributes.position;
+    const toLocal = new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld);
+    for (let i = 0; i < pos.count; i++) {
+      v.fromBufferAttribute(pos, i).applyMatrix4(toLocal);
+      // only the lowest part of the object casts the contact shadow
+      local.expandByPoint(v);
+    }
+  });
+  const w = (local.max.x - local.min.x) * S.padding * sizeMul;
+  const d = (local.max.z - local.min.z) * S.padding * sizeMul;
+  const mat = new THREE.MeshBasicMaterial({
+    map: shadowTexture, color: S.color, transparent: true, opacity: S.opacity,
+    depthWrite: false, toneMapped: false,
+  });
+  const plane = new THREE.Mesh(new THREE.PlaneGeometry(w, d), mat);
+  plane.rotation.order = 'YXZ';
+  plane.rotation.set(-Math.PI / 2, yaw, 0);
+  const c = local.getCenter(new THREE.Vector3()).applyMatrix4(new THREE.Matrix4().makeRotationY(yaw));
+  plane.position.set(c.x, y + 0.5, c.z);
+  plane.renderOrder = -1;
+  scene.add(plane);
+}
+
+function makeMatte(object) {
+  const M = SCENE_CONFIG.materials;
+  object.traverse((m) => {
+    if (!m.isMesh) return;
+    for (const mat of [].concat(m.material)) {
+      if ('roughness' in mat) mat.roughness = Math.max(mat.roughness ?? 1, M.roughnessMin);
+      if ('metalness' in mat) mat.metalness = M.metalness;
+      mat.needsUpdate = true;
+    }
+  });
+}
+
+/* ---------- load and place models ---------- */
+const draco = new DRACOLoader().setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/libs/draco/gltf/');
+const loader = new GLTFLoader().setDRACOLoader(draco);
+
+async function placeModel(cfg) {
+  const gltf = await loader.loadAsync(cfg.file);
+  const inner = gltf.scene;
+  makeMatte(inner);
+
+  // Wrapper: inner gets the per-model fix, wrapper gets the world facing.
+  inner.rotation.y = cfg.modelYawDeg * DEG;
+  const obj = new THREE.Group();
+  obj.name = cfg.name;
+  obj.add(inner);
+  obj.rotation.y = (cfg.faceDeg - 0) * DEG;
+  scene.add(obj);
+
+  // Scale to the wanted on-screen height.
+  obj.updateMatrixWorld(true);
+  obj.scale.setScalar((cfg.heightFrac * IMG_H) / screenHeight(obj));
+  obj.updateMatrixWorld(true);
+
+  // Put the center of the base on `at`, bottom exactly on the surface.
+  const y = SCENE_CONFIG.surfaces[cfg.surface].y;
+  const [tx, tz] = cfg.at;
+  const box = tightBox(obj);
+  const center = box.getCenter(new THREE.Vector3());
+  obj.position.set(tx - center.x, y - box.min.y, tz - center.z);
+  obj.updateMatrixWorld(true);
+
+  addContactShadow(obj, y, cfg.shadow);
+  return obj;
+}
+
+/* ---------- debug outline (?debug) ---------- */
+function addDebug() {
+  const { size: L, wallHeight: H } = SCENE_CONFIG.room;
+  const mat = new THREE.LineBasicMaterial({ color: 0x0066ff, depthTest: false });
+  const line = (pts, m = mat) => {
+    const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts.map((p) => new THREE.Vector3(...p))), m);
+    l.renderOrder = 999; scene.add(l);
+  };
+  line([[L, 0, 0], [0, 0, 0], [0, 0, L], [L, 0, L], [L, 0, 0]]);
+  line([[0, 0, 0], [0, H, 0]]);
+  line([[L, H, 0], [0, H, 0], [0, H, L]]);
+  line([[L, 0, 0], [L, H, 0]]);
+  line([[0, 0, L], [0, H, L]]);
+  const green = new THREE.LineBasicMaterial({ color: 0x00aa44, depthTest: false });
+  for (const s of Object.values(SCENE_CONFIG.surfaces)) {
+    if (!s.x) continue;
+    const [x0, x1] = s.x, [z0, z1] = s.z;
+    line([[x0, s.y, z0], [x1, s.y, z0], [x1, s.y, z1], [x0, s.y, z1], [x0, s.y, z0]], green);
+  }
+  const red = new THREE.LineBasicMaterial({ color: 0xff0033, depthTest: false });
+  for (const cfg of SCENE_CONFIG.models) {
+    const y = SCENE_CONFIG.surfaces[cfg.surface].y;
+    const [x, z] = cfg.at;
+    line([[x, y, z], [x, 0, z]], red);
+    line([[x - 30, y, z], [x + 30, y, z]], red);
+    line([[x, y, z - 30], [x, y, z + 30]], red);
+  }
+}
+
+/* ---------- size and render ---------- */
+function resize() {
+  const r = stage.getBoundingClientRect();
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(r.width, r.height, false);
+  render();
+}
+function render() { renderer.render(scene, camera); }
+new ResizeObserver(resize).observe(stage);
+
+if (DEBUG) addDebug();
+const placed = await Promise.all(SCENE_CONFIG.models.map((cfg) =>
+  placeModel(cfg).catch((e) => console.error('Failed to load', cfg.file, e))));
+window.__room = { scene, camera, placed, SCENE_CONFIG, THREE, render };
+resize();
+</script>
+</body>
+</html>
