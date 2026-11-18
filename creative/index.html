@@ -30,6 +30,14 @@
     display: block;
   }
   #stage img { user-select: none; -webkit-user-drag: none; }
+  /* Soft light-mood layers between the room picture and the 3D canvas. */
+  #stage .mood {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    will-change: opacity;
+  }
 </style>
 <script type="importmap">
 {
@@ -109,11 +117,37 @@ const SCENE_CONFIG = {
 
   contactShadow: { color: 0x6e4a30, opacity: 0.4, padding: 1.35 },
 
+  /* Mouse reaction (step 2).
+     The mouse's horizontal position becomes a "mood" from -1 (left) to +1 (right), 0 = middle. */
+  interaction: {
+    middleZone: 0.12,     // fraction of half the window around the center that counts as "middle"
+    fadeSeconds: 0.6,     // how long lights and turn take to settle
+    returnSeconds: 1.2,   // slower, calmer return when the mouse leaves the window
+    maxTurnDeg: 25,       // how far Ashly turns toward the mouse side (never more than ~30)
+    strength: 1,          // overall multiplier for every light change below (0 = off)
+
+    // Layers on the room picture. center/size are % of the image; max = opacity at full mood.
+    overlays: {
+      daylight: { side: 'left',  color: '#c6ddff', blend: 'screen',     center: [30, 44], size: [26, 46], max: 0.5 },
+      lampGlow: { side: 'right', color: '#ffa552', blend: 'soft-light', center: [62, 42], size: [26, 44], max: 1.0 },
+      lampLift: { side: 'right', color: '#ffd59c', blend: 'screen',     center: [61, 40], size: [22, 36], max: 0.4 },
+      dimLeft:  { side: 'dimLeft',  color: '#6f5444', blend: 'multiply', center: [30, 48], size: [28, 48], max: 0.45 },
+      dimRight: { side: 'dimRight', color: '#6f5444', blend: 'multiply', center: [67, 48], size: [28, 48], max: 0.45 },
+    },
+
+    // Matching 3D lights (world units, see the axes note above).
+    lights3d: {
+      daylight: { color: 0xd2e3ff, position: [140, 460, 860], distance: 1250, max: 2.4 }, // near the window
+      lamp:     { color: 0xffa95e, position: [436, 430, 120], distance: 1200, max: 2.8 }, // at the floor lamp
+      hemiDip: 0.2,   // the overall fill drops this much at full mood, so the "off" side dims
+    },
+  },
+
   models: [
     { name: 'ashly',       file: 'models/ashly.glb',       surface: 'floor',  at: [1030, 1115], heightFrac: 0.48,  faceDeg: 45, modelYawDeg: 0, shadow: 1 },
-    { name: 'websites',    file: 'models/websites.glb',    surface: 'desk',   at: [25, 1030],   heightFrac: 0.112, faceDeg: 90, modelYawDeg: 0, shadow: 1 },
-    { name: 'jobhub',      file: 'models/jobhub.glb',      surface: 'desk',   at: [110, 880],   heightFrac: 0.182, faceDeg: 90, modelYawDeg: 0, shadow: 1 },
-    { name: 'bloombento',  file: 'models/bloombento.glb',  surface: 'desk',   at: [165, 720],   heightFrac: 0.182, faceDeg: 90, modelYawDeg: 0, shadow: 1 },
+    { name: 'websites',    file: 'models/websites.glb',    surface: 'desk',   at: [25, 1032],   heightFrac: 0.112, faceDeg: 90, modelYawDeg: 0, shadow: 1 },
+    { name: 'jobhub',      file: 'models/jobhub.glb',      surface: 'desk',   at: [100, 900],   heightFrac: 0.145, faceDeg: 90, modelYawDeg: 0, shadow: 1 },
+    { name: 'bloombento',  file: 'models/bloombento.glb',  surface: 'desk',   at: [150, 710],   heightFrac: 0.145,faceDeg: 90, modelYawDeg: 0, shadow: 1 },
     { name: 'less-stress', file: 'models/less-stress.glb', surface: 'shelf',  at: [45, 430],    heightFrac: 0.055, faceDeg: 90, modelYawDeg: 0, shadow: 1 },
     { name: 'suitcase',    file: 'models/suitcase.glb',    surface: 'floor',  at: [145, 58],    heightFrac: 0.11,faceDeg: 45, modelYawDeg: 0, shadow: 1 },
     { name: 'ski',         file: 'models/ski.glb',         surface: 'floor',  at: [280, 62],    heightFrac: 0.163, faceDeg: 45, modelYawDeg: 0, shadow: 1 },
@@ -155,16 +189,27 @@ const camera = (() => {
 })();
 
 /* ---------- lights: soft and even, matte look ---------- */
-{
+const lights = (() => {
   const L = SCENE_CONFIG.lights;
-  scene.add(new THREE.HemisphereLight(L.hemiSky, L.hemiGround, L.hemiIntensity));
+  const hemi = new THREE.HemisphereLight(L.hemiSky, L.hemiGround, L.hemiIntensity);
+  scene.add(hemi);
   const key = new THREE.DirectionalLight(L.keyColor, L.keyIntensity);
   key.position.set(...L.keyPosition);
   scene.add(key);
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.environmentIntensity = L.environmentIntensity;
-}
+
+  // Mood lights: start at 0, the mouse reaction fades them in.
+  const makeMoodLight = (c) => {
+    const p = new THREE.PointLight(c.color, 0, c.distance, 0); // decay 0 = soft cutoff at `distance`
+    p.position.set(...c.position);
+    scene.add(p);
+    return p;
+  };
+  const M = SCENE_CONFIG.interaction.lights3d;
+  return { hemi, key, daylight: makeMoodLight(M.daylight), lamp: makeMoodLight(M.lamp) };
+})();
 
 /* ---------- helpers ---------- */
 
@@ -266,29 +311,31 @@ async function placeModel(cfg) {
   const inner = gltf.scene;
   makeMatte(inner);
 
-  // Wrapper: inner gets the per-model fix, wrapper gets the world facing.
+  // pivot (sits on the surface at `at`; turning it spins the object in place)
+  //   └ obj (world facing + scale, offset so its base center is the pivot)
+  //       └ inner (per-model fix)
   inner.rotation.y = cfg.modelYawDeg * DEG;
   const obj = new THREE.Group();
-  obj.name = cfg.name;
   obj.add(inner);
-  obj.rotation.y = (cfg.faceDeg - 0) * DEG;
-  scene.add(obj);
+  obj.rotation.y = cfg.faceDeg * DEG;
+  const pivot = new THREE.Group();
+  pivot.name = cfg.name;
+  pivot.add(obj);
+  scene.add(pivot);
 
   // Scale to the wanted on-screen height.
-  obj.updateMatrixWorld(true);
-  obj.scale.setScalar((cfg.heightFrac * IMG_H) / screenHeight(obj));
-  obj.updateMatrixWorld(true);
+  obj.scale.setScalar((cfg.heightFrac * IMG_H) / screenHeight(pivot));
 
-  // Put the center of the base on `at`, bottom exactly on the surface.
-  const y = SCENE_CONFIG.surfaces[cfg.surface].y;
-  const [tx, tz] = cfg.at;
-  const box = tightBox(obj);
+  // Center of the base on the pivot, bottom exactly on the surface.
+  const box = tightBox(pivot);
   const center = box.getCenter(new THREE.Vector3());
-  obj.position.set(tx - center.x, y - box.min.y, tz - center.z);
-  obj.updateMatrixWorld(true);
+  obj.position.set(-center.x, -box.min.y, -center.z);
+  const y = SCENE_CONFIG.surfaces[cfg.surface].y;
+  pivot.position.set(cfg.at[0], y, cfg.at[1]);
+  pivot.updateMatrixWorld(true);
 
   addContactShadow(obj, y, cfg.shadow);
-  return obj;
+  return pivot;
 }
 
 /* ---------- debug outline (?debug) ---------- */
@@ -330,10 +377,97 @@ function resize() {
 function render() { renderer.render(scene, camera); }
 new ResizeObserver(resize).observe(stage);
 
+/* ---------- mouse reaction: light mood + Ashly's turn ---------- */
+const I = SCENE_CONFIG.interaction;
+
+// Overlay layers on the room picture (inserted right after the <img>, under the canvas).
+const overlayLayers = Object.values(I.overlays).map((o) => {
+  const el = document.createElement('div');
+  el.className = 'mood';
+  const [cx, cy] = o.center, [w, h] = o.size;
+  el.style.background = `radial-gradient(ellipse ${w}% ${h}% at ${cx}% ${cy}%, ` +
+    `${o.color} 0%, color-mix(in srgb, ${o.color} 55%, transparent) 45%, transparent 100%)`;
+  el.style.mixBlendMode = o.blend;
+  stage.insertBefore(el, renderer.domElement);
+  return { el, o };
+});
+
+const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+const state = {
+  target: 0,      // where the mood wants to go (-1..1)
+  mood: 0,        // current, eased value
+  turnTarget: 0,  // where Ashly's turn wants to go (-1..1)
+  turn: 0,        // current, eased turn
+  seconds: I.fadeSeconds,
+  ashly: null,
+};
+
+// Mouse x (0..1 across the window) -> mood (-1..1) with a calm middle zone and soft edges.
+function moodFromX(fx) {
+  const m = Math.max(-1, Math.min(1, (fx - 0.5) * 2));
+  const t = Math.max(0, (Math.abs(m) - I.middleZone) / (1 - I.middleZone));
+  const eased = t * t * (3 - 2 * t); // smoothstep
+  return Math.sign(m) * eased;
+}
+
+function setTarget(mood, seconds) {
+  state.target = mood;
+  state.turnTarget = reduceMotionQuery.matches ? 0 : mood;
+  state.seconds = seconds;
+  startLoop();
+}
+
+function applyMood() {
+  const k = I.strength;
+  const left = Math.max(0, -state.mood) * k;
+  const right = Math.max(0, state.mood) * k;
+  const amount = { left, right, dimLeft: right, dimRight: left };
+  for (const { el, o } of overlayLayers) el.style.opacity = (amount[o.side] * o.max).toFixed(4);
+
+  const L3 = I.lights3d;
+  lights.daylight.intensity = left * L3.daylight.max;
+  lights.lamp.intensity = right * L3.lamp.max;
+  lights.hemi.intensity = SCENE_CONFIG.lights.hemiIntensity * (1 - L3.hemiDip * (left + right));
+
+  if (state.ashly) state.ashly.rotation.y = state.turn * I.maxTurnDeg * DEG;
+}
+
+let rafId = 0, lastTime = 0;
+function startLoop() {
+  if (rafId) return;
+  lastTime = performance.now();
+  rafId = requestAnimationFrame(tick);
+}
+function tick(now) {
+  const dt = Math.min(0.1, (now - lastTime) / 1000);
+  lastTime = now;
+  // Exponential ease-out: ~98% of the way there after `seconds`.
+  const f = 1 - Math.exp(-dt * 4 / state.seconds);
+  state.mood += (state.target - state.mood) * f;
+  state.turn += (state.turnTarget - state.turn) * f;
+  const done = Math.abs(state.target - state.mood) < 1e-3 && Math.abs(state.turnTarget - state.turn) < 1e-3;
+  if (done) { state.mood = state.target; state.turn = state.turnTarget; }
+  applyMood();
+  render();
+  rafId = done ? 0 : requestAnimationFrame(tick);
+}
+
+window.addEventListener('pointermove', (e) => {
+  if (e.pointerType === 'touch') return; // desktop only
+  setTarget(moodFromX(e.clientX / window.innerWidth), I.fadeSeconds);
+});
+// Mouse leaves the window (or the window loses focus): slowly back to the middle.
+document.documentElement.addEventListener('mouseleave', () => setTarget(0, I.returnSeconds));
+window.addEventListener('blur', () => setTarget(0, I.returnSeconds));
+// "Reduce motion" switched on or off while the page is open.
+reduceMotionQuery.addEventListener('change', () => setTarget(state.target, I.fadeSeconds));
+
 if (DEBUG) addDebug();
 const placed = await Promise.all(SCENE_CONFIG.models.map((cfg) =>
   placeModel(cfg).catch((e) => console.error('Failed to load', cfg.file, e))));
-window.__room = { scene, camera, placed, SCENE_CONFIG, THREE, render };
+state.ashly = placed.find((p) => p && p.name === 'ashly') || null;
+applyMood();
+window.__room = { scene, camera, placed, SCENE_CONFIG, THREE, render, state, setTarget };
 resize();
 </script>
 </body>
