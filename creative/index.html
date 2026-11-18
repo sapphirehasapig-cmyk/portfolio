@@ -40,6 +40,82 @@
     opacity: 0;
     will-change: opacity;
   }
+
+  /* --u = 1% of the stage width, so stickers and focus rings scale with the room. */
+  /* Invisible keyboard targets over each object (mouse uses the 3D shapes instead). */
+  #stage .hotspots { position: absolute; inset: 0; pointer-events: none; }
+  #stage .hotspot {
+    position: absolute;
+    pointer-events: none;
+    margin: 0; padding: 0; border: 0;
+    background: transparent;
+    border-radius: calc(var(--u) * 0.9);
+    outline: none;
+  }
+  #stage .hotspot:focus-visible {
+    box-shadow: 0 0 0 calc(var(--u) * 0.18) #fff, 0 0 0 calc(var(--u) * 0.38) #8a5a3c;
+  }
+
+  /* The sticker that peels off the wall. */
+  #stage .sticker {
+    position: absolute;
+    box-sizing: border-box;
+    background: #fffdf8;
+    border: calc(var(--u) * 0.55) solid #fff;
+    border-radius: calc(var(--u) * 1.1);
+    padding: calc(var(--u) * 0.9) calc(var(--u) * 1.15) calc(var(--u) * 1);
+    box-shadow: 0 calc(var(--u) * 0.45) calc(var(--u) * 1.4) rgba(90, 55, 30, 0.22),
+                0 calc(var(--u) * 0.08) calc(var(--u) * 0.25) rgba(90, 55, 30, 0.18);
+    font-family: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI", system-ui, sans-serif;
+    color: #4a3428;
+    opacity: 0;
+    transform-origin: left center;
+    pointer-events: none;
+  }
+  #stage .sticker.on { pointer-events: auto; }
+  /* Text scales with the room but never gets smaller than 22 px (title) / 15 px (line + link). */
+  #stage .sticker { min-width: 250px; }
+  #stage .sticker-title { font-weight: 800; font-size: max(22px, calc(var(--u) * 1.35)); line-height: 1.15; }
+  #stage .sticker-text { margin-top: calc(var(--u) * 0.45); font-size: max(15px, calc(var(--u) * 0.85)); line-height: 1.35; color: #6b5244; }
+  #stage .sticker-link {
+    display: inline-block;
+    margin-top: calc(var(--u) * 0.7);
+    font-size: max(15px, calc(var(--u) * 0.85));
+    font-weight: 700;
+    color: #b8572f;
+    text-decoration: none;
+    border-bottom: calc(var(--u) * 0.12) solid currentColor;
+  }
+  #stage .sticker-link:hover { color: #8f3f1f; }
+  #stage .sticker-link:focus-visible { outline: 2px solid #b8572f; outline-offset: 3px; border-radius: 3px; }
+
+  /* Small tag next to a hovered / focused object, same sticker style. */
+  #stage .tag {
+    position: absolute;
+    box-sizing: border-box;
+    pointer-events: none;
+    white-space: nowrap;
+    background: #fffdf8;
+    border: calc(var(--u) * 0.35) solid #fff;
+    border-radius: calc(var(--u) * 0.8);
+    padding: calc(var(--u) * 0.45) calc(var(--u) * 0.8) calc(var(--u) * 0.5);
+    box-shadow: 0 calc(var(--u) * 0.3) calc(var(--u) * 0.9) rgba(90, 55, 30, 0.22),
+                0 1px 2px rgba(90, 55, 30, 0.16);
+    font-family: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI", system-ui, sans-serif;
+    color: #4a3428;
+    opacity: 0;
+    transform: translateY(4px) rotate(var(--tilt, -3deg)) scale(0.94);
+    transition-property: opacity, transform;
+    transition-timing-function: ease-out;
+  }
+  #stage .tag.on { opacity: 1; transform: translateY(0) rotate(var(--tilt, -3deg)) scale(1); }
+  #stage .tag-title { font-weight: 800; font-size: max(15px, calc(var(--u) * 0.95)); line-height: 1.15; }
+  #stage .tag-hint { margin-top: 2px; font-size: max(12px, calc(var(--u) * 0.65)); color: #8a6a58; }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
 </style>
 <script type="importmap">
 {
@@ -175,6 +251,50 @@ const SCENE_CONFIG = {
       hop: 14,           // height of the small landing bounce
       handPoint: [830, 400, 1113], // world point next to Ashly's raised hand
       gatherRadius: 40,  // how tightly they are bunched at the hand
+    },
+  },
+
+  /* Sticker texts (step 4) — edit these freely.
+     `link` = project page; leave it out (or null) for hobby objects, which then show no link. */
+  stickerLinkText: 'View project →',
+  tagText: 'Click to open', // small line on the hover tag (the tag's title comes from `stickers`)
+  stickers: {
+    bloombento:    { title: 'BloomBento',             text: 'Short description coming soon.', link: '/bloombento.html' },
+    jobhub:        { title: 'Job Search Tracker',     text: 'Short description coming soon.', link: '/job-search-tracker.html' },
+    websites:      { title: 'Website Design',         text: 'Short description coming soon.', link: '/website-design.html' },
+    'less-stress': { title: 'Design for Less Stress', text: 'Short description coming soon.', link: '/design-for-less-stress.html' },
+    parkflux:      { title: 'ParkFlux',               text: 'Short description coming soon.', link: '/parkflux.html' },
+    suitcase:      { title: 'Travel',                 text: 'Short description coming soon.' },
+    ski:           { title: 'Skiing',                 text: 'Short description coming soon.' },
+    keyboard:      { title: 'Music',                  text: 'Short description coming soon.' },
+    easel:         { title: 'Drawing',                text: 'Short description coming soon.' },
+  },
+
+  /* Clicking objects (step 4). */
+  select: {
+    hover: { lift: 14, bob: 5, bobSpeed: 0.9, seconds: 0.25 }, // lift + gentle bob when the mouse is over an object
+    tag: { fadeSeconds: 0.15, gap: 0.6 },  // hover tag: fade time, distance from the object (% of the image)
+    hint: {                                 // gentle wiggle after the intro, once per visit (not with "reduce motion")
+      enabled: true,
+      object: 'bloombento',
+      delay: 0.4,     // seconds after the intro ends
+      times: 2,       // number of wiggles
+      angleDeg: 6,    // how far it rocks to each side
+      seconds: 0.5,   // length of one wiggle
+    },
+    fly: { seconds: 0.6, arc: 120 },        // flight to / from Ashly's hand (arc = how high it curves)
+    hold: {
+      point: [958, 600, 1292], // world point where the held object's base floats (just above her open hand)
+      grow: 1.5,               // held object is this much bigger...
+      maxScreenPx: 200,        // ...but never taller than this on screen
+      float: 6, floatSpeed: 0.6, // gentle floating while held
+    },
+    camera: { zoom: 1.12, origin: [49, 62] }, // eases in toward Ashly; origin = % of the image
+    sticker: {
+      left: 53.5, top: 17, width: 13, // position and width on the right wall, in % of the image
+      tiltDeg: -4,                     // slight tilt once it faces the viewer
+      wallSkewDeg: 24.7,               // matches the right wall's slope, so it starts "painted on" the wall
+      peelSeconds: 0.55,
     },
   },
 
@@ -406,9 +526,11 @@ function addDebug() {
 
 /* ---------- size and render ---------- */
 function resize() {
-  const r = stage.getBoundingClientRect();
+  // Layout size (not affected by the intro / camera-zoom transforms).
+  const w = stage.clientWidth, h = stage.clientHeight;
+  stage.style.setProperty('--u', `${w / 100}px`);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(r.width, r.height, false);
+  renderer.setSize(w, h, false);
   render();
 }
 function render() { renderer.render(scene, camera); }
@@ -438,6 +560,8 @@ const state = {
   seconds: I.fadeSeconds,
   ashly: null,
   interactive: false, // turned on when the intro is over (or skipped)
+  held: null,         // the object currently floating above Ashly's hand
+  suppressClick: false,
 };
 
 // Mouse x (0..1 across the window) -> mood (-1..1) with a calm middle zone and soft edges.
@@ -451,7 +575,8 @@ function moodFromX(fx) {
 function setTarget(mood, seconds) {
   if (!state.interactive) return; // ignore the mouse during the intro
   state.target = mood;
-  state.turnTarget = reduceMotionQuery.matches ? 0 : mood;
+  // Ashly only turns when nothing is held and "reduce motion" is off.
+  state.turnTarget = (reduceMotionQuery.matches || state.held) ? 0 : mood;
   state.seconds = seconds;
   startLoop();
 }
@@ -478,7 +603,7 @@ function startLoop() {
   rafId = requestAnimationFrame(tick);
 }
 function tick(now) {
-  const dt = Math.min(0.1, (now - lastTime) / 1000);
+  const dt = Math.max(0, Math.min(0.1, (now - lastTime) / 1000));
   lastTime = now;
   // Exponential ease-out: ~98% of the way there after `seconds`.
   const f = 1 - Math.exp(-dt * 4 / state.seconds);
@@ -602,7 +727,371 @@ function finishIntro(flights) {
   state.interactive = true;
   applyMood();
   render();
+  startHint();
 }
+
+/* ---------- clicking objects (step 4) ---------- */
+const SEL = SCENE_CONFIG.select;
+const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const pickables = [];          // one entry per clickable object
+const pickMap = new Map();     // pivot -> entry
+const pickRay = new THREE.Raycaster();
+const pickNdc = new THREE.Vector2();
+const holdVec = new THREE.Vector3(...SEL.hold.point);
+const _wiggleQ = new THREE.Quaternion();
+let hovered = null;
+
+// After the intro: one gentle wiggle on BloomBento, once per visit, never with "reduce motion".
+const HINT_KEY = 'room-hint-played';
+function startHint() {
+  const H = SEL.hint;
+  if (!H.enabled || reduceMotionQuery.matches) return;
+  const force = new URLSearchParams(location.search).has('hint'); // test helper
+  try {
+    if (!force && sessionStorage.getItem(HINT_KEY) === '1') return;
+    sessionStorage.setItem(HINT_KEY, '1');
+  } catch {}
+  const it = pickables.find((i) => i.p.name === H.object);
+  if (!it || it === state.held || it === hovered) return;
+  it.wiggle = { t: -H.delay, dur: H.times * H.seconds };
+  startFx();
+}
+
+// Keyboard targets, the sticker and a screen-reader announcer, all inside the stage.
+const hotspots = document.createElement('div');
+hotspots.className = 'hotspots';
+stage.appendChild(hotspots);
+
+const stickerEl = document.createElement('div');
+stickerEl.className = 'sticker';
+stickerEl.setAttribute('aria-hidden', 'true');
+stickerEl.innerHTML = '<div class="sticker-title"></div><div class="sticker-text"></div>' +
+  '<a class="sticker-link" tabindex="-1"></a>';
+Object.assign(stickerEl.style, {
+  left: `${SEL.sticker.left}%`, top: `${SEL.sticker.top}%`, width: `${SEL.sticker.width}%`,
+});
+stage.appendChild(stickerEl);
+const announcer = document.createElement('div');
+announcer.className = 'sr-only';
+announcer.setAttribute('aria-live', 'polite');
+document.body.appendChild(announcer);
+// Extra hint read after each object's title by screen readers.
+const openHint = document.createElement('div');
+openHint.id = 'open-hint';
+openHint.className = 'sr-only';
+openHint.textContent = 'Press Enter to open';
+document.body.appendChild(openHint);
+
+// Small hover / focus tag (hidden from screen readers: the button already says the title).
+const tagEl = document.createElement('div');
+tagEl.className = 'tag';
+tagEl.setAttribute('aria-hidden', 'true');
+tagEl.innerHTML = '<div class="tag-title"></div><div class="tag-hint"></div>';
+tagEl.style.transitionDuration = `${SEL.tag.fadeSeconds}s`;
+stage.appendChild(tagEl);
+let tagFor = null;
+
+function showTag(it) {
+  if (tagFor === it) return;
+  tagFor = it;
+  tagEl.querySelector('.tag-title').textContent = it.info.title;
+  tagEl.querySelector('.tag-hint').textContent = SCENE_CONFIG.tagText;
+  const { box } = it, gap = SEL.tag.gap;
+  const onRight = box.right < 82; // near the right edge -> put the tag on the left instead
+  Object.assign(tagEl.style, {
+    top: `${box.top + (box.bottom - box.top) * 0.05}%`,
+    left: onRight ? `${box.right + gap}%` : 'auto',
+    right: onRight ? 'auto' : `${100 - box.left + gap}%`,
+  });
+  tagEl.style.setProperty('--tilt', onRight ? '-3deg' : '3deg');
+  // restart the quick fade-in
+  tagEl.classList.remove('on');
+  void tagEl.offsetWidth;
+  tagEl.classList.add('on');
+}
+function hideTag() {
+  tagFor = null;
+  tagEl.classList.remove('on');
+}
+// Tag follows keyboard focus first, then the mouse; never for the held object or one in flight.
+function updateTag() {
+  if (!state.interactive) return hideTag();
+  const focusedItem = pickables.find((i) => i.button === document.activeElement);
+  const it = focusedItem || hovered;
+  if (it && it !== state.held && !it.anim && it.k === 0) showTag(it);
+  else hideTag();
+}
+
+const reduced = () => reduceMotionQuery.matches;
+
+// Screen box of an object at rest, in % of the image (for its keyboard target).
+function screenBoxPct(p) {
+  const v = new THREE.Vector3();
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  p.updateMatrixWorld(true);
+  p.traverse((m) => {
+    if (!m.isMesh) return;
+    const pos = m.geometry.attributes.position;
+    for (let i = 0; i < pos.count; i += 4) {
+      v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld).project(camera);
+      x0 = Math.min(x0, v.x); x1 = Math.max(x1, v.x); y0 = Math.min(y0, v.y); y1 = Math.max(y1, v.y);
+    }
+  });
+  const pad = 0.4;
+  return { left: (x0 + 1) * 50 - pad, right: (x1 + 1) * 50 + pad, top: (1 - y1) * 50 - pad, bottom: (1 - y0) * 50 + pad };
+}
+
+function setupSelection(objects) {
+  for (const p of objects) {
+    const cfg = SCENE_CONFIG.models.find((m) => m.name === p.name);
+    const info = SCENE_CONFIG.stickers[p.name] || { title: p.name, text: '' };
+    const box = screenBoxPct(p);
+    const it = {
+      p, info, box,
+      home: p.position.clone(),
+      homeImgPx: cfg.heightFrac * IMG_H,
+      faceFix: (45 - cfg.faceDeg) * DEG, // extra turn so a held object faces the viewer
+      facingAxis: new THREE.Vector3(Math.sin(cfg.faceDeg * DEG), 0, Math.cos(cfg.faceDeg * DEG)),
+      wiggle: null, wiggleAngle: 0,      // after-intro hint
+      phase: Math.random() * Math.PI * 2,
+      hv: 0, hoverTarget: 0, // hover lift (eased)
+      k: 0, anim: null,      // 0 = at home, 1 = held above her hand
+    };
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'hotspot';
+    b.setAttribute('aria-label', info.title);
+    b.setAttribute('aria-pressed', 'false');
+    b.setAttribute('aria-describedby', 'open-hint');
+    Object.assign(b.style, {
+      left: `${box.left}%`, top: `${box.top}%`,
+      width: `${box.right - box.left}%`, height: `${box.bottom - box.top}%`,
+    });
+    b.addEventListener('click', (e) => { e.stopPropagation(); if (state.interactive) toggle(it); });
+    b.addEventListener('focus', () => { it.hoverTarget = 1; it.wiggle = null; startFx(); updateTag(); });
+    b.addEventListener('blur', () => { if (hovered !== it) { it.hoverTarget = 0; startFx(); } updateTag(); });
+    it.button = b;
+    pickables.push(it);
+    pickMap.set(p, it);
+  }
+  // Tab order: left to right across the room.
+  pickables.sort((a, b) => (a.box.left + a.box.right) - (b.box.left + b.box.right));
+  for (const it of pickables) hotspots.appendChild(it.button);
+}
+
+// How big a held object gets: `grow` times its size, capped at maxScreenPx on screen.
+function holdScale(it) {
+  const cssPerImgPx = stage.clientWidth / IMG_W;
+  const zoom = reduced() ? 1 : SEL.camera.zoom;
+  const maxImgPx = SEL.hold.maxScreenPx / (cssPerImgPx * zoom);
+  return Math.min(it.homeImgPx * SEL.hold.grow, maxImgPx) / it.homeImgPx;
+}
+
+function poseItem(it, time) {
+  const { p } = it;
+  const ek = easeInOutCubic(it.k);
+  const still = reduced();
+  p.position.lerpVectors(it.home, holdVec, ek);
+  p.position.y += SEL.fly.arc * 4 * ek * (1 - ek);
+  const bob = still ? 0 : SEL.hover.bob * Math.sin(time * SEL.hover.bobSpeed * Math.PI * 2 + it.phase);
+  p.position.y += it.hv * (SEL.hover.lift + bob) * (1 - ek);
+  if (!still) p.position.y += ek * SEL.hold.float * Math.sin(time * SEL.hold.floatSpeed * Math.PI * 2);
+  p.rotation.set(0, it.faceFix * ek, 0);
+  if (it.wiggleAngle) {
+    // rock side to side around the object's own facing direction (pivot = center of its base)
+    _wiggleQ.setFromAxisAngle(it.facingAxis, it.wiggleAngle);
+    p.quaternion.premultiply(_wiggleQ);
+  }
+  p.scale.setScalar(1 + (holdScale(it) - 1) * ek);
+  const sh = p.userData.shadow;
+  if (sh) sh.material.opacity = SCENE_CONFIG.contactShadow.opacity * (1 - ek) * (1 - 0.35 * it.hv);
+}
+
+// Animation loop for hover, flights and the camera; runs only while something moves.
+let fxRaf = 0, fxLast = 0;
+function startFx() {
+  if (fxRaf) return;
+  fxLast = performance.now();
+  fxRaf = requestAnimationFrame(fxTick);
+}
+function fxTick(now) {
+  // (the first frame's timestamp can be slightly before startFx ran, so never let dt go negative)
+  const dt = Math.max(0, Math.min(0.1, (now - fxLast) / 1000));
+  fxLast = now;
+  const time = now / 1000;
+  let active = false;
+  let kMax = 0;
+  for (const it of pickables) {
+    it.hv += (it.hoverTarget - it.hv) * (1 - Math.exp(-dt * 4 / SEL.hover.seconds));
+    if (Math.abs(it.hoverTarget - it.hv) < 1e-3) it.hv = it.hoverTarget;
+    // Hint wiggle: rocks `times` times, softening toward the end.
+    it.wiggleAngle = 0;
+    if (it.wiggle) {
+      const w = it.wiggle;
+      w.t += dt;
+      if (w.t >= 0) {
+        const u = w.t / w.dur;
+        if (u >= 1) it.wiggle = null;
+        else it.wiggleAngle = SEL.hint.angleDeg * DEG * Math.sin(Math.PI * 2 * SEL.hint.times * u) * (1 - 0.4 * u);
+      }
+    }
+    if (it.anim) {
+      const a = it.anim;
+      a.t += dt;
+      const u = clamp01(a.t / a.dur);
+      it.k = a.from + (a.to - a.from) * u;
+      if (u >= 1) { it.k = a.to; it.anim = null; a.resolve(); }
+    }
+    if (it.hoverTarget > 0 || it.hv !== 0 || it.k > 0 || it.anim || it.wiggle) active = true;
+    kMax = Math.max(kMax, it.k);
+    poseItem(it, time);
+  }
+  // Camera eases in toward Ashly: the whole stage (picture + 3D + sticker) scales together.
+  const zoom = reduced() ? 1 : 1 + (SEL.camera.zoom - 1) * easeInOutCubic(kMax);
+  stage.style.transformOrigin = `${SEL.camera.origin[0]}% ${SEL.camera.origin[1]}%`;
+  stage.style.transform = zoom > 1.0001 ? `translate(-50%, -50%) scale(${zoom})` : '';
+  render();
+  fxRaf = active ? requestAnimationFrame(fxTick) : 0;
+}
+
+function flyTo(it, to) {
+  return new Promise((resolve) => {
+    if (it.anim) it.anim.resolve();
+    const dur = Math.max(0.001, SEL.fly.seconds * Math.abs(to - it.k));
+    it.anim = { from: it.k, to, t: 0, dur, resolve };
+    startFx();
+  });
+}
+
+// Sticker: starts flat on the wall (skewed like the wall), peels off and flips to face the viewer.
+let stickerAnim = null;
+function peelFrames() {
+  const s = SEL.sticker;
+  return [
+    { offset: 0,    opacity: 0, transform: `perspective(1200px) skewY(${s.wallSkewDeg}deg) rotateY(0deg) scale(0.94)` },
+    { offset: 0.2,  opacity: 1, transform: `perspective(1200px) skewY(${s.wallSkewDeg}deg) rotateY(0deg) scale(0.96)` },
+    { offset: 0.6,  opacity: 1, transform: `perspective(1200px) skewY(${s.wallSkewDeg * 0.45}deg) rotateY(-50deg) scale(1.03)` },
+    { offset: 1,    opacity: 1, transform: `perspective(1200px) skewY(0deg) rotateY(0deg) rotate(${s.tiltDeg}deg) scale(1)` },
+  ];
+}
+function showSticker(it) {
+  const { info } = it;
+  stickerEl.querySelector('.sticker-title').textContent = info.title;
+  stickerEl.querySelector('.sticker-text').textContent = info.text || '';
+  const link = stickerEl.querySelector('.sticker-link');
+  if (info.link) {
+    link.href = info.link;
+    link.textContent = SCENE_CONFIG.stickerLinkText;
+    link.style.display = '';
+    link.tabIndex = 0;
+    link.setAttribute('aria-label', `${SCENE_CONFIG.stickerLinkText.replace(/[→\s]+$/, '')}: ${info.title}`);
+  } else {
+    link.removeAttribute('href');
+    link.style.display = 'none';
+    link.tabIndex = -1;
+  }
+  stickerEl.classList.add('on');
+  stickerEl.setAttribute('aria-hidden', 'false');
+  announcer.textContent = `${info.title}. ${info.text || ''}`;
+  if (stickerAnim) stickerAnim.cancel();
+  stickerAnim = stickerEl.animate(peelFrames(), {
+    duration: SEL.sticker.peelSeconds * 1000, easing: 'cubic-bezier(.25,.8,.3,1)', fill: 'forwards',
+  });
+  return stickerAnim.finished.catch(() => {});
+}
+function hideSticker() {
+  stickerEl.classList.remove('on');
+  stickerEl.setAttribute('aria-hidden', 'true');
+  stickerEl.querySelector('.sticker-link').tabIndex = -1;
+  announcer.textContent = '';
+  if (stickerAnim) stickerAnim.cancel();
+  stickerAnim = stickerEl.animate(peelFrames(), {
+    duration: SEL.sticker.peelSeconds * 1000 * 0.8, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards', direction: 'reverse',
+  });
+  return stickerAnim.finished.catch(() => {});
+}
+
+async function selectItem(it) {
+  state.held = it;
+  it.wiggle = null;
+  it.button.setAttribute('aria-pressed', 'true');
+  hideTag(); // the big sticker takes over
+  state.turnTarget = 0; // Ashly stops following the mouse while she holds something
+  state.seconds = I.fadeSeconds;
+  startLoop();
+  await Promise.all([showSticker(it), flyTo(it, 1)]);
+}
+async function deselect() {
+  const it = state.held;
+  if (!it) return;
+  state.held = null;
+  it.button.setAttribute('aria-pressed', 'false');
+  state.turnTarget = reduced() ? 0 : state.target;
+  state.seconds = I.fadeSeconds;
+  startLoop();
+  await Promise.all([hideSticker(), flyTo(it, 0)]);
+  updateTag(); // if the mouse is still over it, its tag comes back
+}
+// Clicks are queued, so "held goes back first, then the new one flies in" always holds.
+let selQueue = Promise.resolve();
+function enqueue(fn) { selQueue = selQueue.then(fn, fn); return selQueue; }
+function toggle(it) {
+  return enqueue(async () => {
+    if (state.held === it) return deselect();
+    if (state.held) await deselect();
+    return selectItem(it);
+  });
+}
+function release() { return enqueue(() => deselect()); }
+
+// Which object is under the pointer (Ashly blocks objects behind her).
+function pickAt(clientX, clientY) {
+  const r = stage.getBoundingClientRect(); // includes the camera zoom
+  pickNdc.set(((clientX - r.left) / r.width) * 2 - 1, -((clientY - r.top) / r.height) * 2 + 1);
+  pickRay.setFromCamera(pickNdc, camera);
+  const targets = pickables.map((i) => i.p);
+  if (state.ashly) targets.push(state.ashly);
+  const hit = pickRay.intersectObjects(targets, true)[0];
+  if (!hit) return null;
+  let o = hit.object;
+  while (o && !pickMap.has(o) && o !== state.ashly) o = o.parent;
+  return pickMap.get(o) || null;
+}
+
+function setHovered(it) {
+  if (hovered === it) return;
+  if (hovered && document.activeElement !== hovered.button) hovered.hoverTarget = 0;
+  hovered = it;
+  if (it) { it.hoverTarget = 1; it.wiggle = null; }
+  document.documentElement.style.cursor = it ? 'pointer' : '';
+  startFx();
+  updateTag();
+}
+
+let lastPointer = null, hoverRaf = 0;
+window.addEventListener('pointermove', (e) => {
+  if (e.pointerType === 'touch') return;
+  lastPointer = e;
+  if (!hoverRaf) hoverRaf = requestAnimationFrame(() => {
+    hoverRaf = 0;
+    if (!state.interactive || !pickables.length) return;
+    const overSticker = lastPointer.target.closest && lastPointer.target.closest('.sticker');
+    setHovered(overSticker ? null : pickAt(lastPointer.clientX, lastPointer.clientY));
+  });
+});
+document.documentElement.addEventListener('mouseleave', () => setHovered(null));
+
+window.addEventListener('click', (e) => {
+  if (!state.interactive) return;
+  if (state.suppressClick) { state.suppressClick = false; return; } // the click that skipped the intro
+  if (e.target.closest && e.target.closest('.sticker')) return;    // let the sticker link work
+  const it = pickAt(e.clientX, e.clientY);
+  if (it) toggle(it);
+  else if (state.held) release();
+});
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && state.interactive && state.held) release();
+});
 
 /* ---------- start: load everything, then intro or final scene ---------- */
 if (DEBUG) addDebug();
@@ -621,8 +1110,11 @@ try { playedThisSession = sessionStorage.getItem(INTRO_KEY) === '1'; } catch {}
 const playIntro = introAt !== null ||
   (N.enabled && !reduceMotionQuery.matches && (params.has('intro') || !playedThisSession));
 
-const flights = prepareFlights(placed.filter((p) => p && p !== state.ashly));
-window.__room = { scene, camera, placed, SCENE_CONFIG, THREE, render, state, setTarget, flights, applyIntro, finishIntro };
+const objects = placed.filter((p) => p && p !== state.ashly);
+const flights = prepareFlights(objects);
+setupSelection(objects); // reads the resting positions, so it runs before the intro moves anything
+window.__room = { scene, camera, placed, SCENE_CONFIG, THREE, render, state, setTarget, flights, applyIntro, finishIntro,
+  pickables, toggle, release, pickAt };
 
 if (!playIntro) {
   finishIntro(flights);
@@ -634,7 +1126,9 @@ if (!playIntro) {
   const total = introEnd(flights);
   let raf = 0;
   const t0 = performance.now();
-  const skip = () => {
+  const skip = (e) => {
+    // A click that skips the intro should not also pick up an object.
+    if (e && e.type === 'pointerdown') state.suppressClick = true;
     cancelAnimationFrame(raf);
     window.removeEventListener('pointerdown', skip, true);
     window.removeEventListener('keydown', skip, true);
