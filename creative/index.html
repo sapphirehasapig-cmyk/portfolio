@@ -21,6 +21,8 @@
     transform: translate(-50%, -50%);
     width: min(100vw, calc(100vh * 2752 / 1536));
     height: min(100vh, calc(100vw * 1536 / 2752));
+    opacity: 0; /* hidden (only the cream background shows) until the image and all models are loaded */
+    transform-origin: 50% 50%;
   }
   #stage img, #stage canvas {
     position: absolute;
@@ -140,6 +142,39 @@ const SCENE_CONFIG = {
       daylight: { color: 0xd2e3ff, position: [140, 460, 860], distance: 1250, max: 2.4 }, // near the window
       lamp:     { color: 0xffa95e, position: [436, 430, 120], distance: 1200, max: 2.8 }, // at the floor lamp
       hemiDip: 0.2,   // the overall fill drops this much at full mood, so the "off" side dims
+    },
+  },
+
+  /* Intro animation (step 3). All times in seconds from the start of the intro.
+     Plays once per browser session; a click or key press skips it; "reduce motion" skips it.
+     Test helpers: ?intro plays it again, ?introAt=1.2 freezes it at that moment. */
+  intro: {
+    enabled: true,
+    room: {
+      start: 0, end: 0.6,
+      fromScale: 0.85,   // room image + 3D layer start at 85% size, transparent
+      bounce: 1.4,       // strength of the soft overshoot at the end (0 = none)
+    },
+    ashly: {
+      start: 0.5, end: 1.4,
+      fromDeg: 80,       // starts turned 80° to HER left (side view, never her back); turns clockwise
+                         // (use -80 and overshootDeg 10 for the opposite, counter-clockwise turn)
+      overshootDeg: -10, // swings this far past the front, then settles
+      turnFrac: 0.65,    // part of the time spent on the main turn (rest = settling back)
+    },
+    objects: {
+      gatherAt: 0.9,     // the 9 objects appear, tiny, around Ashly's hand
+      start: 1.1,        // first object leaves
+      stagger: 0.08,     // delay between objects
+      duration: 0.66,    // flight + landing time of each object (last one lands at ~2.4 s)
+      flightFrac: 0.78,  // part of `duration` spent flying; the rest is the landing bounce
+      fromScale: 0.15,   // size at the hand
+      sweepDeg: 70,      // how far each one swings around Ashly (same direction for all = fan)
+      order: 'right-to-left', // which side leaves first: 'right-to-left' or 'left-to-right'
+      lift: 140,         // how high the arcs rise (world units)
+      hop: 14,           // height of the small landing bounce
+      handPoint: [830, 400, 1113], // world point next to Ashly's raised hand
+      gatherRadius: 40,  // how tightly they are bunched at the hand
     },
   },
 
@@ -288,6 +323,7 @@ function addContactShadow(object, y, sizeMul) {
   plane.position.set(c.x, y + 0.5, c.z);
   plane.renderOrder = -1;
   scene.add(plane);
+  return plane;
 }
 
 function makeMatte(object) {
@@ -334,7 +370,8 @@ async function placeModel(cfg) {
   pivot.position.set(cfg.at[0], y, cfg.at[1]);
   pivot.updateMatrixWorld(true);
 
-  addContactShadow(obj, y, cfg.shadow);
+  pivot.userData.shadow = addContactShadow(obj, y, cfg.shadow);
+  pivot.userData.surfaceY = y;
   return pivot;
 }
 
@@ -400,6 +437,7 @@ const state = {
   turn: 0,        // current, eased turn
   seconds: I.fadeSeconds,
   ashly: null,
+  interactive: false, // turned on when the intro is over (or skipped)
 };
 
 // Mouse x (0..1 across the window) -> mood (-1..1) with a calm middle zone and soft edges.
@@ -411,6 +449,7 @@ function moodFromX(fx) {
 }
 
 function setTarget(mood, seconds) {
+  if (!state.interactive) return; // ignore the mouse during the intro
   state.target = mood;
   state.turnTarget = reduceMotionQuery.matches ? 0 : mood;
   state.seconds = seconds;
@@ -462,13 +501,158 @@ window.addEventListener('blur', () => setTarget(0, I.returnSeconds));
 // "Reduce motion" switched on or off while the page is open.
 reduceMotionQuery.addEventListener('change', () => setTarget(state.target, I.fadeSeconds));
 
+/* ---------- intro animation (step 3) ---------- */
+const N = SCENE_CONFIG.intro;
+const clamp01 = (t) => Math.max(0, Math.min(1, t));
+const seg = (t, a, b) => clamp01((t - a) / (b - a));
+const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+const easeInOutSine = (t) => -(Math.cos(Math.PI * t) - 1) / 2;
+const easeOutBack = (t, s) => 1 + (s + 1) * Math.pow(t - 1, 3) + s * Math.pow(t - 1, 2);
+
+function setStage(scale, opacity) {
+  stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+  stage.style.opacity = String(opacity);
+}
+
+// Work out each object's arc: polar coordinates around Ashly's hand, all swinging the same way.
+function prepareFlights(objects) {
+  const O = N.objects;
+  const [hx, , hz] = O.handPoint;
+  const sweep = O.sweepDeg * DEG;
+  const back = Math.atan2(-1, -1); // direction away from the viewer, used to order the fan
+  const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
+  const flights = objects.map((p) => {
+    const end = p.position.clone();
+    const dx = end.x - hx, dz = end.z - hz;
+    const a1 = Math.atan2(dz, dx);
+    return { p, end, r1: Math.hypot(dx, dz), a1, a0: a1 - sweep, order: wrap(a1 - back) };
+  });
+  // Leave in fan order, so the opening sweeps across in one direction.
+  // (`order` grows from the left side of the room to the right side.)
+  const dir = O.order === 'left-to-right' ? 1 : -1;
+  flights.sort((a, b) => dir * (a.order - b.order));
+  flights.forEach((f, i) => { f.start = O.start + i * O.stagger; });
+  return flights;
+}
+
+function introEnd(flights) {
+  const lastLanding = flights.length ? flights[flights.length - 1].start + N.objects.duration : 0;
+  return Math.max(N.room.end, N.ashly.end, lastLanding);
+}
+
+// Pose the whole scene at intro time t (seconds).
+function applyIntro(t, flights) {
+  // 1. Room pops in.
+  const R = N.room;
+  const tr = seg(t, R.start, R.end);
+  setStage(R.fromScale + (1 - R.fromScale) * easeOutBack(tr, R.bounce),
+           easeOutCubic(seg(t, R.start, R.start + (R.end - R.start) * 0.7)));
+
+  // 2. Ashly turns from side view to the front, swings a little past, settles.
+  const A = N.ashly;
+  const ta = seg(t, A.start, A.end);
+  const deg = ta < A.turnFrac
+    ? A.fromDeg + (A.overshootDeg - A.fromDeg) * easeInOutSine(ta / A.turnFrac)
+    : A.overshootDeg * (1 - easeInOutSine((ta - A.turnFrac) / (1 - A.turnFrac)));
+  if (state.ashly) state.ashly.rotation.y = deg * DEG;
+
+  // 3. Objects fly out from her hand along curved arcs and land with a small bounce.
+  const O = N.objects;
+  const [hx, hy, hz] = O.handPoint;
+  const baseShadow = SCENE_CONFIG.contactShadow.opacity;
+  for (const f of flights) {
+    const { p, end } = f;
+    const shadow = p.userData.shadow;
+    if (t < O.gatherAt) {
+      p.visible = false;
+      if (shadow) shadow.material.opacity = 0;
+      continue;
+    }
+    p.visible = true;
+    const tt = (t - f.start) / O.duration;
+    let q, hop = 0, landed = 0;
+    if (tt <= 0) q = 0;
+    else if (tt < O.flightFrac) q = easeOutCubic(tt / O.flightFrac);
+    else {
+      q = 1;
+      landed = clamp01((tt - O.flightFrac) / (1 - O.flightFrac));
+      hop = O.hop * Math.sin(Math.PI * landed);
+    }
+    const r = O.gatherRadius + (f.r1 - O.gatherRadius) * q;
+    const a = f.a0 + (f.a1 - f.a0) * q;
+    const y = hy + (end.y - hy) * q + O.lift * 4 * q * (1 - q) + hop;
+    p.position.set(q === 1 ? end.x : hx + r * Math.cos(a), y, q === 1 ? end.z : hz + r * Math.sin(a));
+    const appear = easeOutCubic(seg(t, O.gatherAt, O.gatherAt + 0.15)); // grows out of her hand
+    p.scale.setScalar(appear * (O.fromScale + (1 - O.fromScale) * q));
+    if (shadow) shadow.material.opacity = tt >= 1 ? baseShadow : baseShadow * easeOutCubic(landed);
+  }
+}
+
+// Final scene: everything in place, mouse effects on.
+function finishIntro(flights) {
+  for (const f of flights || []) {
+    f.p.visible = true;
+    f.p.position.copy(f.end);
+    f.p.scale.setScalar(1);
+    if (f.p.userData.shadow) f.p.userData.shadow.material.opacity = SCENE_CONFIG.contactShadow.opacity;
+  }
+  if (state.ashly) state.ashly.rotation.y = 0;
+  stage.style.transform = '';
+  stage.style.opacity = '1';
+  state.interactive = true;
+  applyMood();
+  render();
+}
+
+/* ---------- start: load everything, then intro or final scene ---------- */
 if (DEBUG) addDebug();
 const placed = await Promise.all(SCENE_CONFIG.models.map((cfg) =>
   placeModel(cfg).catch((e) => console.error('Failed to load', cfg.file, e))));
 state.ashly = placed.find((p) => p && p.name === 'ashly') || null;
+try { await stage.querySelector('img').decode(); } catch {}
 applyMood();
-window.__room = { scene, camera, placed, SCENE_CONFIG, THREE, render, state, setTarget };
 resize();
+
+const params = new URLSearchParams(location.search);
+const introAt = params.has('introAt') ? parseFloat(params.get('introAt')) : null;
+const INTRO_KEY = 'room-intro-played';
+let playedThisSession = false;
+try { playedThisSession = sessionStorage.getItem(INTRO_KEY) === '1'; } catch {}
+const playIntro = introAt !== null ||
+  (N.enabled && !reduceMotionQuery.matches && (params.has('intro') || !playedThisSession));
+
+const flights = prepareFlights(placed.filter((p) => p && p !== state.ashly));
+window.__room = { scene, camera, placed, SCENE_CONFIG, THREE, render, state, setTarget, flights, applyIntro, finishIntro };
+
+if (!playIntro) {
+  finishIntro(flights);
+} else if (introAt !== null) {
+  applyIntro(introAt, flights); // test helper: frozen at one moment
+  render();
+} else {
+  try { sessionStorage.setItem(INTRO_KEY, '1'); } catch {}
+  const total = introEnd(flights);
+  let raf = 0;
+  const t0 = performance.now();
+  const skip = () => {
+    cancelAnimationFrame(raf);
+    window.removeEventListener('pointerdown', skip, true);
+    window.removeEventListener('keydown', skip, true);
+    finishIntro(flights);
+  };
+  window.addEventListener('pointerdown', skip, true);
+  window.addEventListener('keydown', skip, true);
+  const step = (now) => {
+    const t = (now - t0) / 1000;
+    if (t >= total) { skip(); return; }
+    applyIntro(t, flights);
+    render();
+    raf = requestAnimationFrame(step);
+  };
+  applyIntro(0, flights);
+  render();
+  raf = requestAnimationFrame(step);
+}
 </script>
 </body>
 </html>
