@@ -74,7 +74,8 @@
   }
   #stage .sticker.on { pointer-events: auto; }
   /* Text scales with the room but never gets smaller than 22 px (title) / 15 px (line + link). */
-  #stage .sticker { min-width: 250px; }
+  /* Each sticker is only as wide as its text, up to a maximum (then the line wraps). */
+  #stage .sticker { width: max-content; }
   #stage .sticker-title { font-weight: 800; font-size: max(22px, calc(var(--u) * 1.35)); line-height: 1.15; }
   #stage .sticker-text { margin-top: calc(var(--u) * 0.45); font-size: max(15px, calc(var(--u) * 0.85)); line-height: 1.35; color: #6b5244; }
   #stage .sticker-link {
@@ -112,6 +113,41 @@
   #stage .tag-title { font-weight: 800; font-size: max(15px, calc(var(--u) * 0.95)); line-height: 1.15; }
   #stage .tag-hint { margin-top: 2px; font-size: max(12px, calc(var(--u) * 0.65)); color: #8a6a58; }
 
+  /* Simple / Creative switch, clay style (outside the stage, so camera zoom doesn't scale it). */
+  .mode-switch {
+    position: fixed;
+    top: 22px;
+    right: 24px;
+    z-index: 20;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px 12px 15px;
+    border-radius: 999px;
+    background: #f5d9c3;
+    --clay:
+      inset 0 2px 3px rgba(255, 255, 255, 0.75),
+      inset 0 -3px 6px rgba(178, 108, 68, 0.28),
+      0 6px 14px rgba(140, 85, 50, 0.22),
+      0 1px 2px rgba(140, 85, 50, 0.22);
+    box-shadow: var(--clay);
+    font-family: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+    color: #4a3428;
+    text-decoration: none;
+    user-select: none;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+  }
+  .mode-switch svg { width: 16px; height: 16px; flex: none; }
+  .mode-switch:hover { background: #f8e1cf; transform: translateY(-1px); }
+  .mode-switch:active {
+    transform: translateY(1px);
+    box-shadow: inset 0 2px 4px rgba(178, 108, 68, 0.3), 0 2px 4px rgba(140, 85, 50, 0.2);
+  }
+  .mode-switch:focus-visible { outline: none; box-shadow: var(--clay), 0 0 0 3px #fff, 0 0 0 5px #b8572f; }
+
   .sr-only {
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
     overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
@@ -127,6 +163,7 @@
 </script>
 </head>
 <body>
+<a class="mode-switch" id="ms-simple" href="/"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg><span class="ms-label">Back to the simple site</span></a>
 <div id="stage">
   <img src="room.jpg" alt="An isometric cozy room" draggable="false">
 </div>
@@ -226,6 +263,7 @@ const SCENE_CONFIG = {
      Test helpers: ?intro plays it again, ?introAt=1.2 freezes it at that moment. */
   intro: {
     enabled: true,
+    playWhenComingFromHome: true, // always play it after "Step into my 3D room" (not on refresh)
     room: {
       start: 0, end: 0.6,
       fromScale: 0.85,   // room image + 3D layer start at 85% size, transparent
@@ -254,20 +292,30 @@ const SCENE_CONFIG = {
     },
   },
 
+  /* Button to the simple site (step 5), top right. */
+  switch: {
+    backLabel: 'Back to the simple site',  // button text on this page
+    // The homepage's button text ("Step into my 3D room") lives in index.html's own small block.
+    homeUrl: '/',          // the simple homepage
+    exitSeconds: 1,        // exit animation before opening the homepage (click or key skips it)
+    minWidth: 900,         // narrower windows (and phones) are sent to the homepage on load
+                           // (the homepage hides its switch below the same width, in its own CSS)
+  },
+
   /* Sticker texts (step 4) — edit these freely.
      `link` = project page; leave it out (or null) for hobby objects, which then show no link. */
   stickerLinkText: 'View project →',
   tagText: 'Click to open', // small line on the hover tag (the tag's title comes from `stickers`)
   stickers: {
-    bloombento:    { title: 'BloomBento',             text: 'Short description coming soon.', link: '/bloombento.html' },
-    jobhub:        { title: 'Job Search Tracker',     text: 'Short description coming soon.', link: '/job-search-tracker.html' },
-    websites:      { title: 'Website Design',         text: 'Short description coming soon.', link: '/website-design.html' },
-    'less-stress': { title: 'Design for Less Stress', text: 'Short description coming soon.', link: '/design-for-less-stress.html' },
-    parkflux:      { title: 'ParkFlux',               text: 'Short description coming soon.', link: '/parkflux.html' },
-    suitcase:      { title: 'Travel',                 text: 'Short description coming soon.' },
-    ski:           { title: 'Skiing',                 text: 'Short description coming soon.' },
-    keyboard:      { title: 'Music',                  text: 'Short description coming soon.' },
-    easel:         { title: 'Drawing',                text: 'Short description coming soon.' },
+    bloombento:    { title: 'BloomBento',             text: 'A plant that talks to you. I’m building it now.',             link: '/bloombento.html' },
+    jobhub:        { title: 'Job Hub',                text: 'The tool I built to run my own job search.',                  link: '/job-search-tracker.html' },
+    websites:      { title: 'Website Design',         text: '30+ websites I designed for clients.',                        link: '/website-design.html' },
+    'less-stress': { title: 'Design for Less Stress', text: 'My master’s thesis on helping students feel less stressed.', link: '/design-for-less-stress.html' },
+    parkflux:      { title: 'ParkFlux',               text: 'A driver app, plus a dashboard for parking companies.',      link: '/parkflux.html' },
+    keyboard:      { title: 'Keyboard',               text: 'Teaching myself, one song at a time.' },
+    easel:         { title: 'Painting',               text: 'I paint just for fun.' },
+    ski:           { title: 'Skiing',                 text: 'I started on ice skates. Now I ski.' },
+    suitcase:      { title: 'Travel',                 text: '7 EU countries so far, and counting.' },
   },
 
   /* Clicking objects (step 4). */
@@ -291,7 +339,8 @@ const SCENE_CONFIG = {
     },
     camera: { zoom: 1.12, origin: [49, 62] }, // eases in toward Ashly; origin = % of the image
     sticker: {
-      left: 53.5, top: 17, width: 13, // position and width on the right wall, in % of the image
+      left: 53.5, top: 17,             // position on the right wall, in % of the image
+      maxWidth: 16, maxWidthMinPx: 270, // longest a sticker gets: % of the image, but never under this many px
       tiltDeg: -4,                     // slight tilt once it faces the viewer
       wallSkewDeg: 24.7,               // matches the right wall's slope, so it starts "painted on" the wall
       peelSeconds: 0.55,
@@ -311,6 +360,15 @@ const SCENE_CONFIG = {
     { name: 'parkflux',    file: 'models/parkflux.glb',    surface: 'ground', at: [60, 1466],   heightFrac: 0.11,  faceDeg: 45, modelYawDeg: 0, shadow: 1 },
   ],
 };
+
+/* ---------- phones and narrow windows go to the simple homepage (before any 3D loads) ---------- */
+{
+  const isPhone = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  if (window.innerWidth < SCENE_CONFIG.switch.minWidth || isPhone) {
+    location.replace(SCENE_CONFIG.switch.homeUrl);
+    await new Promise(() => {}); // stop here
+  }
+}
 
 /* ---------- renderer, scene, camera ---------- */
 const DEBUG = new URLSearchParams(location.search).has('debug');
@@ -562,6 +620,7 @@ const state = {
   interactive: false, // turned on when the intro is over (or skipped)
   held: null,         // the object currently floating above Ashly's hand
   suppressClick: false,
+  exiting: false,     // the "Simple" exit animation is playing
 };
 
 // Mouse x (0..1 across the window) -> mood (-1..1) with a calm middle zone and soft edges.
@@ -768,7 +827,8 @@ stickerEl.setAttribute('aria-hidden', 'true');
 stickerEl.innerHTML = '<div class="sticker-title"></div><div class="sticker-text"></div>' +
   '<a class="sticker-link" tabindex="-1"></a>';
 Object.assign(stickerEl.style, {
-  left: `${SEL.sticker.left}%`, top: `${SEL.sticker.top}%`, width: `${SEL.sticker.width}%`,
+  left: `${SEL.sticker.left}%`, top: `${SEL.sticker.top}%`,
+  maxWidth: `max(${SEL.sticker.maxWidthMinPx}px, ${SEL.sticker.maxWidth}%)`,
 });
 stage.appendChild(stickerEl);
 const announcer = document.createElement('div');
@@ -1075,7 +1135,7 @@ window.addEventListener('pointermove', (e) => {
   if (!hoverRaf) hoverRaf = requestAnimationFrame(() => {
     hoverRaf = 0;
     if (!state.interactive || !pickables.length) return;
-    const overSticker = lastPointer.target.closest && lastPointer.target.closest('.sticker');
+    const overSticker = lastPointer.target.closest && lastPointer.target.closest('.sticker, .mode-switch');
     setHovered(overSticker ? null : pickAt(lastPointer.clientX, lastPointer.clientY));
   });
 });
@@ -1084,7 +1144,7 @@ document.documentElement.addEventListener('mouseleave', () => setHovered(null));
 window.addEventListener('click', (e) => {
   if (!state.interactive) return;
   if (state.suppressClick) { state.suppressClick = false; return; } // the click that skipped the intro
-  if (e.target.closest && e.target.closest('.sticker')) return;    // let the sticker link work
+  if (e.target.closest && e.target.closest('.sticker, .mode-switch')) return; // let the links work
   const it = pickAt(e.clientX, e.clientY);
   if (it) toggle(it);
   else if (state.held) release();
@@ -1092,6 +1152,61 @@ window.addEventListener('click', (e) => {
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && state.interactive && state.held) release();
 });
+
+/* ---------- Simple / Creative switch + exit animation (step 5) ---------- */
+const SW = SCENE_CONFIG.switch;
+const simpleLink = document.getElementById('ms-simple');
+simpleLink.querySelector('.ms-label').textContent = SW.backLabel;
+simpleLink.href = SW.homeUrl;
+
+let exitFlights = null; // set once the scene is ready
+function exitToSimple() {
+  if (state.exiting) return;
+  state.exiting = true;
+  const go = () => { location.href = SW.homeUrl; };
+  if (reduced() || !exitFlights) { go(); return; }
+
+  // Stop everything interactive and put any held object straight back.
+  state.interactive = false;
+  setHovered(null);
+  hideTag();
+  if (state.held) { state.held = null; hideSticker(); }
+  cancelAnimationFrame(fxRaf); fxRaf = 0;
+  cancelAnimationFrame(rafId); rafId = 0;
+  for (const it of pickables) {
+    Object.assign(it, { hoverTarget: 0, hv: 0, wiggle: null, wiggleAngle: 0, k: 0, anim: null });
+    poseItem(it, 0);
+  }
+  stage.style.transform = '';
+  state.mood = state.target = state.turn = state.turnTarget = 0;
+  applyMood();
+
+  // The intro played backwards, faster: objects fly back into her hand, she turns away, the room shrinks.
+  const T = introEnd(exitFlights);
+  const t0 = performance.now();
+  let raf = 0;
+  const skip = () => { cancelAnimationFrame(raf); go(); };
+  // Backup: open the homepage on time even if the browser pauses animation frames.
+  setTimeout(skip, SW.exitSeconds * 1000 + 150);
+  window.addEventListener('pointerdown', skip, { capture: true, once: true });
+  window.addEventListener('keydown', skip, { capture: true, once: true });
+  const step = (now) => {
+    const u = (now - t0) / 1000 / SW.exitSeconds;
+    if (u >= 1) { applyIntro(0, exitFlights); render(); go(); return; }
+    applyIntro(T * (1 - u), exitFlights);
+    render();
+    raf = requestAnimationFrame(step);
+  };
+  raf = requestAnimationFrame(step);
+}
+simpleLink.addEventListener('click', (e) => {
+  if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // new-tab clicks behave normally
+  e.preventDefault();
+  e.stopPropagation();
+  exitToSimple();
+});
+// Coming back with the browser's Back button: don't show the half-exited room.
+window.addEventListener('pageshow', (e) => { if (e.persisted && state.exiting) location.reload(); });
 
 /* ---------- start: load everything, then intro or final scene ---------- */
 if (DEBUG) addDebug();
@@ -1107,12 +1222,24 @@ const introAt = params.has('introAt') ? parseFloat(params.get('introAt')) : null
 const INTRO_KEY = 'room-intro-played';
 let playedThisSession = false;
 try { playedThisSession = sessionStorage.getItem(INTRO_KEY) === '1'; } catch {}
+// Arriving from the simple homepage ("Step into my 3D room") always plays the intro,
+// but a refresh of this page does not (a reload keeps the old referrer, so check the navigation type).
+const navType = (performance.getEntriesByType('navigation')[0] || {}).type;
+let fromHome = false;
+try {
+  const ref = new URL(document.referrer);
+  const home = new URL(SW.homeUrl, location.href);
+  fromHome = ref.origin === location.origin &&
+    (ref.pathname === home.pathname || ref.pathname === `${home.pathname.replace(/\/$/, '')}/index.html`);
+} catch {}
+const enteringFromHome = N.playWhenComingFromHome && fromHome && navType === 'navigate';
 const playIntro = introAt !== null ||
-  (N.enabled && !reduceMotionQuery.matches && (params.has('intro') || !playedThisSession));
+  (N.enabled && !reduceMotionQuery.matches && (params.has('intro') || enteringFromHome || !playedThisSession));
 
 const objects = placed.filter((p) => p && p !== state.ashly);
 const flights = prepareFlights(objects);
 setupSelection(objects); // reads the resting positions, so it runs before the intro moves anything
+exitFlights = flights;
 window.__room = { scene, camera, placed, SCENE_CONFIG, THREE, render, state, setTarget, flights, applyIntro, finishIntro,
   pickables, toggle, release, pickAt };
 
