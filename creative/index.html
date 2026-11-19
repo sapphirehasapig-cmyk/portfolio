@@ -1,8 +1,25 @@
 <!doctype html>
 <html lang="en">
 <head>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-R41WEZ2715"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  // Mark your own visits: open the site once with ?me=1 on each of your devices (?me=0 to undo)
+  var zxCfg = {};
+  try {
+    if (/[?&]me=1\b/.test(location.search)) localStorage.setItem('zx_internal', '1');
+    if (/[?&]me=0\b/.test(location.search)) localStorage.removeItem('zx_internal');
+    if (localStorage.getItem('zx_internal') === '1') zxCfg.traffic_type = 'internal';
+  } catch (e) {}
+  gtag('config', 'G-R41WEZ2715', zxCfg);
+</script>
 <title>Ashly's Room</title>
 <style>
   html, body {
