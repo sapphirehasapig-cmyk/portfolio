@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-R41WEZ2715"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  // Mark your own visits: open the site once with ?me=1 on each of your devices (?me=0 to undo)
+  var zxCfg = {};
+  try {
+    if (/[?&]me=1\b/.test(location.search)) localStorage.setItem('zx_internal', '1');
+    if (/[?&]me=0\b/.test(location.search)) localStorage.removeItem('zx_internal');
+    if (localStorage.getItem('zx_internal') === '1') zxCfg.traffic_type = 'internal';
+  } catch (e) {}
+  gtag('config', 'G-R41WEZ2715', zxCfg);
+</script>
+<title>Ashly's 3D Room</title>
+<meta name="description" content="A quick tour of Ashly's 3D room. Every object in it is a project or a hobby.">
+<meta name="theme-color" content="#EFE5D4">
+<link rel="canonical" href="https://hellozhixuan.com/creative/">
+<style>
+  :root {
+    --page: #EFE5D4;      /* same as the video background, so the room floats on the page */
+    --ink: #4a3428;
+    --ink-soft: #6b5244;
+    --clay: #f5d9c3;
+    --paper: #fffdf8;
+    --rust: #b8572f;
+    --round: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI", system-ui, sans-serif;
+    --clay-shadow: inset 0 2px 3px rgba(255,255,255,.75), inset 0 -3px 6px rgba(178,108,68,.28), 0 6px 14px rgba(140,85,50,.22), 0 1px 2px rgba(140,85,50,.22);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--page); color: var(--ink); font-family: var(--round); -webkit-font-smoothing: antialiased; }
+
+  /* The room: full width, no frame, edges fade into the page */
+
+  /* Small top bar: her name + way back. Gives the room breathing room under the phone's status bar */
+  .top { display: flex; align-items: center; justify-content: space-between; max-width: 34rem; margin: 0 auto;
+         padding: calc(14px + env(safe-area-inset-top)) 22px 0; font-size: 15px; font-weight: 800; }
+  .top a { color: var(--ink-soft); text-decoration: none; font-size: 14px; padding: 10px 0 10px 12px; }
+  .top a:focus-visible { outline: 2px solid var(--rust); outline-offset: 2px; border-radius: 6px; }
+  .room { margin: 26px 0 6px; }
+  .room video {
+    display: block; width: 100%; height: auto; aspect-ratio: 960 / 774; background: var(--page);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 6%, #000 90%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0, #000 6%, #000 90%, transparent 100%);
+  }
+
+  .text { max-width: 34rem; margin: 0 auto; padding: 4px 22px 0; }
+  h1 { margin: 0 0 10px; text-wrap: balance; font-size: 28px; line-height: 1.15; font-weight: 800; letter-spacing: -.01em; }
+  .lead { margin: 0; font-size: 16.5px; line-height: 1.5; color: var(--ink-soft); }
+
+  /* What's in the room: stickers, like the ones on the room's walls */
+  .inside { max-width: 34rem; margin: 30px auto 0; padding: 0 22px; }
+  h2 { margin: 0 0 12px; font-size: 17px; font-weight: 800; }
+  .stickers { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px 10px; }
+  .stickers li:nth-child(4n+1) { transform: rotate(-2deg); }
+  .stickers li:nth-child(4n+2) { transform: rotate(1.5deg); }
+  .stickers li:nth-child(4n+3) { transform: rotate(-1deg); }
+  .stickers li:nth-child(4n)   { transform: rotate(2deg); }
+  .sticker {
+    display: inline-flex; flex-direction: column; gap: 2px; padding: 10px 15px 11px; border-radius: 14px;
+    background: var(--paper); color: var(--ink); text-decoration: none;
+    box-shadow: 0 1px 0 rgba(140,85,50,.12), 0 5px 12px rgba(140,85,50,.14);
+    -webkit-tap-highlight-color: transparent; transition: transform .15s ease;
+  }
+  .sticker b { font-size: 15px; font-weight: 800; }
+  .sticker span { font-size: 13px; color: var(--ink-soft); }
+  a.sticker b { text-decoration: underline; text-decoration-color: rgba(184,87,47,.45); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  a.sticker:active { transform: scale(.97); }
+  .sticker.hobby { background: transparent; box-shadow: inset 0 0 0 2px #e4cdb6; }
+  .key { margin: 12px 0 0; font-size: 13px; color: #8a6a58; }
+
+  .actions { max-width: 34rem; margin: 34px auto 0; padding: 0 22px calc(36px + env(safe-area-inset-bottom)); display: grid; gap: 12px; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 54px; padding: 0 22px;
+    border-radius: 999px; border: 0; font: inherit; font-size: 15.5px; font-weight: 800; color: var(--ink);
+    text-decoration: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .btn svg { width: 18px; height: 18px; flex: none; }
+  .btn-main { background: var(--clay); box-shadow: var(--clay-shadow); }
+  .btn-main:active { transform: translateY(1px); }
+  .btn-text { min-height: 44px; background: none; }
+  .btn:focus-visible, .sticker:focus-visible { outline: none; box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--rust); }
+  .note { min-height: 20px; margin: 0; font-size: 14px; text-align: center; color: #8a6a58; }
+
+  @media (min-width: 700px) { .room video { max-width: 760px; margin: 0 auto; } }
+  @media (prefers-reduced-motion: reduce) { .stickers li { transform: none !important; } .sticker, .btn { transition: none; } }
+</style>
+</head>
+<body>
+<header class="top"><span>Ashly Liu</span><a href="/" id="top-home">All my work</a></header>
+<figure class="room">
+  <video src="room-preview.mp4" poster="room-preview.jpg" autoplay muted loop playsinline preload="metadata"
+    aria-label="A short video of Ashly's 3D room. The room opens, Ashly turns to follow the mouse, and cards pop up for BloomBento, the keyboard and Job Hub."></video>
+</figure>
+
+<main>
+  <div class="text">
+    <h1>A quick tour of my 3D room</h1>
+    <p class="lead">Everything in this room is a project or a hobby of mine. On a laptop, I turn to follow your mouse, and you can click every object.</p>
+  </div>
+
+  <section class="inside" aria-labelledby="inside-title">
+    <h2 id="inside-title">What&rsquo;s in the room</h2>
+    <ul class="stickers">
+      <li><a class="sticker" href="/bloombento.html"><b>BloomBento</b></a></li>
+      <li><a class="sticker" href="/job-search-tracker.html"><b>Job Hub</b></a></li>
+      <li><a class="sticker" href="/website-design.html"><b>Website Design</b></a></li>
+      <li><a class="sticker" href="/design-for-less-stress.html"><b>Design for Less Stress</b></a></li>
+      <li><a class="sticker" href="/parkflux.html"><b>ParkFlux</b></a></li>
+      <li><span class="sticker hobby"><b>Skiing</b></span></li>
+      <li><span class="sticker hobby"><b>Keyboard</b></span></li>
+      <li><span class="sticker hobby"><b>Travel</b></span></li>
+      <li><span class="sticker hobby"><b>Painting</b></span></li>
+    </ul>
+    <p class="key">Tap a project to read about it.</p>
+  </section>
+
+  <div class="actions">
+    <button class="btn btn-main" id="save" type="button">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <span>Send the room to my laptop</span>
+    </button>
+    <a class="btn btn-text" id="home" href="/">See all my work</a>
+    <p class="note" id="note" role="status"></p>
+  </div>
+</main>
+
+<script>
+  var ROOM_URL = 'https://hellozhixuan.com/creative/';
+  function track(name, params) { try { gtag('event', name, params || {}); } catch (e) {} }
+  document.getElementById('save').addEventListener('click', function () {
+    track('copy_3d_link');
+    var note = document.getElementById('note');
+    var copied = function () { note.textContent = 'Link copied. Paste it on your laptop.'; };
+    if (navigator.share) {
+      navigator.share({ title: "Ashly's 3D room", url: ROOM_URL }).catch(function () {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(ROOM_URL).then(copied, function () { note.textContent = ROOM_URL; });
+    } else { note.textContent = ROOM_URL; }
+  });
+  ['home','top-home'].forEach(function (id) { document.getElementById(id).addEventListener('click', function () { track('phone_preview_to_home'); }); });
+  document.querySelectorAll('a.sticker').forEach(function (a) {
+    a.addEventListener('click', function () { track('phone_preview_project', { project: a.querySelector('b').textContent }); });
+  });
+</script>
+</body>
+</html>

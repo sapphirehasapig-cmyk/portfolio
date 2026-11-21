@@ -382,7 +382,7 @@ const SCENE_CONFIG = {
 {
   const isPhone = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
   if (window.innerWidth < SCENE_CONFIG.switch.minWidth || isPhone) {
-    location.replace(SCENE_CONFIG.switch.homeUrl);
+    location.replace('/creative/phone.html' + location.search); // phones: short video preview instead of the 3D room
     await new Promise(() => {}); // stop here
   }
 }
