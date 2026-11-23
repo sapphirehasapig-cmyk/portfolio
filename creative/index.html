@@ -1088,7 +1088,11 @@ function hideSticker() {
   return stickerAnim.finished.catch(() => {});
 }
 
+// Google Analytics: what visitors do inside the room (shows up as events in GA)
+function track(name, params) { try { window.gtag && window.gtag('event', name, params || {}); } catch (e) {} }
+
 async function selectItem(it) {
+  track('room_open_object', { item: it.info.title });
   state.held = it;
   it.wiggle = null;
   it.button.setAttribute('aria-pressed', 'true');
@@ -1216,7 +1220,11 @@ function exitToSimple() {
   };
   raf = requestAnimationFrame(step);
 }
+stickerEl.querySelector('.sticker-link').addEventListener('click', () => {
+  track('room_view_project', { item: stickerEl.querySelector('.sticker-title').textContent });
+});
 simpleLink.addEventListener('click', (e) => {
+  track('room_back_to_simple');
   if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // new-tab clicks behave normally
   e.preventDefault();
   e.stopPropagation();

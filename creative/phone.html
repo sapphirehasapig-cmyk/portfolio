@@ -148,7 +148,7 @@
   });
   ['home','top-home'].forEach(function (id) { document.getElementById(id).addEventListener('click', function () { track('phone_preview_to_home'); }); });
   document.querySelectorAll('a.sticker').forEach(function (a) {
-    a.addEventListener('click', function () { track('phone_preview_project', { project: a.querySelector('b').textContent }); });
+    a.addEventListener('click', function () { track('phone_preview_project', { item: a.querySelector('b').textContent }); });
   });
 </script>
 </body>
