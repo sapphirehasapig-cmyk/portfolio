@@ -179,11 +179,62 @@ a.hz-card:focus-visible{outline:3px solid #111;outline-offset:3px}
 .mode-switch:hover{background-color:#fff;transform:translateY(-1px)}
 .mode-switch:focus-visible{outline:2px solid #141414;outline-offset:3px}
 @media (max-width:899px),(hover:none) and (pointer:coarse){.mode-switch{display:none}}
+</style>
+<style id="peek-css">
+/* Ashly peeking over the black "Hi, this is me." card. Values come from PEEK_CONFIG (fallbacks here).
+   The images are 420x328 with the board edge at 299px, so her fingers reach 29/420 = 0.069 x width below it. */
+.hz-video{--peek-w:120px;--peek-x:0px;--peek-lift:5px;--peek-card-top:455px;--sticker-x:64px;--sticker-y:12px;--sticker-tilt:-5deg;top:var(--peek-card-top);overflow:visible;cursor:pointer;color:#fff}
+.hz-now{top:var(--now-card-top,576px)}
+/* When another card is hovered, this card is pushed away; never let it rise more than its own hover lift (14px),
+   so her head can't reach the text line above. */
+.hz-video{transform:translate(var(--dx),max(var(--dy),-14px)) rotate(var(--rot)) scale(var(--s))}
+.hz-video .hz-peek{position:absolute;left:50%;bottom:calc(100% - var(--peek-w) * .069);width:var(--peek-w);opacity:1;font:inherit;transform:translate(calc(-50% + var(--peek-x)),0);transition:transform .45s cubic-bezier(.22,1,.36,1),opacity .5s ease}
+.hz-video .hz-peek img{display:block;width:100%;height:auto}
+.hz-video .hz-peek .hz-peek-wave{position:absolute;inset:0;opacity:0}
+.hz-video.is-active .hz-peek,.hz-video:focus-visible .hz-peek{transform:translate(calc(-50% + var(--peek-x)),calc(-1 * var(--peek-lift)))}
+.hz-video.is-active .hz-peek-idle,.hz-video:focus-visible .hz-peek-idle{opacity:0}
+.hz-video.is-active .hz-peek-wave,.hz-video:focus-visible .hz-peek-wave{opacity:1}
+.hz-video.is-pushed .hz-peek{opacity:.55}
+.hz-video .hz-peek-sticker{position:absolute;left:calc(50% + var(--sticker-x));bottom:calc(100% + var(--sticker-y));white-space:nowrap;padding:9px 14px 10px;background:#fffdf8;border:5px solid #fff;border-radius:14px;box-shadow:0 6px 16px rgba(90,55,30,.22),0 1px 3px rgba(90,55,30,.18);font:800 15px/1.1 ui-rounded,"SF Pro Rounded","Nunito","Segoe UI",system-ui,sans-serif;letter-spacing:0;color:#4a3428;opacity:0;transform:rotate(var(--sticker-tilt)) scale(.6);transform-origin:0 100%;transition:opacity .18s ease,transform .35s cubic-bezier(.3,1.5,.5,1);pointer-events:none}
+.hz-video.is-active .hz-peek-sticker,.hz-video:focus-visible .hz-peek-sticker{opacity:1;transform:rotate(var(--sticker-tilt)) scale(1);pointer-events:auto}
+@media (prefers-reduced-motion:reduce){
+  .hz-video .hz-peek,.hz-video .hz-peek-sticker{transition:none}
+  .hz-video.is-active .hz-peek,.hz-video:focus-visible .hz-peek{transform:translate(calc(-50% + var(--peek-x)),0)}
+  .hz-video .hz-peek-sticker,.hz-video.is-active .hz-peek-sticker,.hz-video:focus-visible .hz-peek-sticker{transform:rotate(var(--sticker-tilt))}
+}
 </style></head><body><a class="mode-switch" href="/creative/" onclick="try{gtag('event','open_3d_room')}catch(e){}"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>Step into my 3D room</a><div class="nav-wrapper"><div class="nav-pill"><a data-w-id="7714f1f7-ab29-e74c-f271-7331e47b5c31" href="#home" class="nav-icon-link w-inline-block"><div class="code-embed-2 w-embed"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house-icon lucide-house"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><div class="tooltip"><div>Home</div></div></a><a data-w-id="8ba81a66-364e-06a9-bd64-fce311ea82a7" href="#mywork" class="nav-icon-link w-inline-block"><div class="code-embed-2 w-embed"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-briefcase-icon lucide-briefcase"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg></div><div class="tooltip"><div>Work</div></div></a><a data-w-id="29841ece-02c8-35b8-7d4c-0a3a7af14c61" href="#about1" class="nav-icon-link w-inline-block"><div class="code-embed-2 w-embed"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="tooltip"><div>About</div></div></a><a data-w-id="b26a450c-0ee1-acc8-ff36-d95c7bd30612" href="#experience12" class="nav-icon-link w-inline-block"><div class="code-embed-2 w-embed"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-route-icon lucide-route"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg></div><div class="tooltip"><div>Experience</div></div></a><a data-w-id="949b89b1-e99e-d955-6fdb-d4e39fdcd79d" href="#more-about-me" class="nav-icon-link w-inline-block"><div class="code-embed-2 w-embed"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench-icon lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg></div><div class="tooltip"><div>Travel</div></div></a><a data-w-id="dd03fe5e-a568-6a63-dd78-c3ead5d1f74a" href="#contact1" class="nav-icon-link w-inline-block"><div class="code-embed-2 w-embed"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail-icon lucide-mail"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg></div><div class="tooltip"><div>Contact</div></div></a></div></div><div class="page-load-cover"></div><section id="home" class="section-2 _1"><div class="hz-stage">
 <p class="hz-kicker">Hello, I&#x27;m Zhixuan (Ashly) Liu</p>
 <h1 class="hz-title">Product Designer<br>&amp; AI Builder</h1>
 <p class="hz-sub">I come from UX/UI and web design, with an MSc from DTU. Now open to product design roles in Copenhagen.</p>
-<div class="hz-card hz-video" aria-label="Intro video, coming soon"><b>Hi, this<br>is me.</b><span>Video on the way</span></div>
+<a class="hz-card hz-video" href="/creative/" aria-label="Hi, this is me. Wanna see my room?"><span class="hz-peek" aria-hidden="true"><img class="hz-peek-idle" src="assets/peek/peek-idle.webp" alt="" width="420" height="328" decoding="async" loading="lazy"><img class="hz-peek-wave" src="assets/peek/peek-wave.webp" alt="" width="420" height="328" decoding="async" loading="lazy"></span><b>Hi, this<br>is me.</b><span class="hz-peek-sticker" aria-hidden="true">Wanna see my room?</span></a>
+<script id="peek-config">
+/* Peeking character on the black "Hi, this is me." card (desktop hero only). */
+var PEEK_CONFIG = {
+  stickerText: 'Wanna see my room?',
+  peekWidth: 120,      // px — her width (the images are 420 x 328, board edge at 299 px)
+  peekX: 0,            // px — sideways shift from the card's centre
+  hoverLift: 5,        // px — how far she pulls herself up on hover
+  cardTop: 455,       // px — the black card's top in the hero (was 395; moved down to make room for her head)
+  nowCardTop: 576,    // px — the yellow "Now building" card's top (was 516; moved down so it doesn't cover "Hi, this is me.")
+  stickerX: 64,        // px — sticker's left edge, from the card's centre
+  stickerY: 12,       // px — sticker's bottom, above the card's top edge
+  stickerTiltDeg: -5
+};
+(function (c) {
+  var e = document.querySelector('.hz-video'); if (!e) return;
+  var px = function (v) { return v + 'px'; };
+  e.style.setProperty('--peek-w', px(c.peekWidth));
+  e.style.setProperty('--peek-x', px(c.peekX));
+  e.style.setProperty('--peek-lift', px(c.hoverLift));
+  e.style.setProperty('--peek-card-top', px(c.cardTop));
+  e.style.setProperty('--sticker-x', px(c.stickerX));
+  e.style.setProperty('--sticker-y', px(c.stickerY));
+  e.style.setProperty('--sticker-tilt', c.stickerTiltDeg + 'deg');
+  var st = e.closest('.hz-stage'); if (st) st.style.setProperty('--now-card-top', px(c.nowCardTop));
+  var s = e.querySelector('.hz-peek-sticker'); if (s) s.textContent = c.stickerText;
+  e.setAttribute('aria-label', 'Hi, this is me. ' + c.stickerText);
+})(PEEK_CONFIG);
+</script>
 <a class="hz-card hz-off" href="#more-about-me"><b>Off work →</b></a>
 <a class="hz-card hz-now" href="#now-building"><b>Now<br>building</b><span>BloomBento · Job Hub</span></a>
 <a class="hz-card hz-apps" href="#apps"><b>Apps</b><span>Less Stress · PARKFLUX · Mæstro</span></a>
