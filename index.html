@@ -208,10 +208,6 @@ a.hz-card:focus-visible{outline:3px solid #111;outline-offset:3px}
 html.hz-deal-pending .hz-card{opacity:0}
 html.hz-dealing .hz-stage{pointer-events:none}
 html.hz-dealing .hz-card{will-change:translate,rotate,opacity} /* keep the deal on the GPU */
-/* "Pick a card" hint, left of the card group, in the subtitle's style. Hidden during the deal,
-   and for the rest of the visit once a card has been hovered/focused. */
-.hz-pick{position:absolute;left:96px;top:628px;margin:0;font:400 20px/1.35 Inter,Arial,sans-serif;color:#555;white-space:nowrap;pointer-events:none;transition:opacity .5s ease}
-html.hz-deal-pending .hz-pick,html.hz-dealing .hz-pick,html.hz-picked .hz-pick{opacity:0}
 /* When another card is hovered, the black card keeps its colour (no white wash = no "disabled" grey); it just fades and blurs a little. */
 .hz-card.hz-video.is-pushed::after{opacity:0}
 .hz-card.hz-video.is-pushed{opacity:.9}
@@ -256,10 +252,6 @@ var HERO_DEAL_CONFIG = {
   if (play) root.classList.add('hz-deal-pending', 'hz-dealing');
   if (desktop) root.classList.add('hz-btn-hidden'); // avoid a flash of the button before we know where we are
 
-  // "Pick a card" stays hidden for the rest of the visit once a card has been hovered.
-  var pickedKey = 'hero-picked';
-  try { if (sessionStorage.getItem(pickedKey) === '1') root.classList.add('hz-picked'); } catch (e) {}
-
   // Fit the 1280px-wide hero to the real page width (100vw would include the scrollbar),
   // and leave room so the "Hello" line (92px down the hero) stays below the nav (ends 82px from the top).
   function fit() {
@@ -276,20 +268,6 @@ var HERO_DEAL_CONFIG = {
   document.addEventListener('DOMContentLoaded', function () {
     fit(); // again now the page (and its scrollbar) exists
     if ('ResizeObserver' in window) new ResizeObserver(fit).observe(document.documentElement);
-
-    // "Pick a card" fades out on the first card hover / keyboard focus.
-    var hzStage = document.querySelector('.hz-stage');
-    var picked = function (e) {
-      if (!e.target.closest || !e.target.closest('.hz-card') || root.classList.contains('hz-dealing')) return;
-      root.classList.add('hz-picked');
-      try { sessionStorage.setItem(pickedKey, '1'); } catch (err) {}
-      hzStage.removeEventListener('mouseover', picked);
-      hzStage.removeEventListener('focusin', picked);
-    };
-    if (hzStage && !root.classList.contains('hz-picked')) {
-      hzStage.addEventListener('mouseover', picked);
-      hzStage.addEventListener('focusin', picked);
-    }
 
     // 1. Deal the cards in, then Ashly pops up from behind the black card.
     if (play) {
@@ -368,7 +346,6 @@ var HERO_DEAL_CONFIG = {
 <p class="hz-kicker">Hello, I&#x27;m Zhixuan (Ashly) Liu</p>
 <h1 class="hz-title">Product Designer<br>&amp; AI Builder</h1>
 <p class="hz-sub">I come from UX/UI and web design, with an MSc from DTU. Now open to product design and AI roles in Copenhagen.</p>
-<p class="hz-pick" aria-hidden="true">Pick a card</p>
 <a class="hz-card hz-video" href="/creative/" aria-label="Hi, this is me. Wanna see my room?"><span class="hz-peek" aria-hidden="true"><img class="hz-peek-idle" src="assets/peek/peek-idle.webp" alt="" width="420" height="328" decoding="async" loading="lazy"><img class="hz-peek-wave" src="assets/peek/peek-wave.webp" alt="" width="420" height="328" decoding="async" loading="lazy"></span><b>Hi, this<br>is me.</b><span class="hz-peek-sticker" aria-hidden="true">Wanna see my room?</span></a>
 <script id="peek-config">
 /* Peeking character on the black "Hi, this is me." card (desktop hero only). */
